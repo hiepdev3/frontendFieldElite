@@ -15,7 +15,6 @@ import { v4 as uuidv4 } from 'uuid';
 dayjs.extend(isSameOrAfter);
 
 let previousVoucher = null;
-let currentVoudhcer = null; 
 
 
 export default function Voucher() {
@@ -26,14 +25,14 @@ export default function Voucher() {
   const [originaldata, setOriginaldata] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  let isDeleteModalOpen = false;
-  let currentVoucher = null;
-  let initialData ;
+ // let isDeleteModalOpen = false;
+ // let currentVoucher = null;
+ // let initialData ;
 
   const [formAdd] = Form.useForm();
   const [formEdit] = Form.useForm();
   const [fieldsAdd, setFieldsAdd] = useState([]); 
-  const [fieldsEdit, setFieldsEdit] = useState([]);
+  //const [fieldsEdit, setFieldsEdit] = useState([]);
   // dùng khi tải trang 
   useEffect(() => {
     fetchVouchers(userId);
@@ -126,7 +125,7 @@ export default function Voucher() {
             <Button
               danger
               type="link"
-              onClick={() => handleDelete(record)}
+              onClick={() => handleEditVoucher(record)}
               icon={<DeleteOutlined />}
               size="small"
             >

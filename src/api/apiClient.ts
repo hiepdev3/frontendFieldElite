@@ -1,6 +1,11 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { AccessTokenResponse } from '../types/AccessTokenResponse.ts';
 
+export interface ApiResponse<T> {
+  code: number;
+  message: string;
+  data: T | null;
+}
 // Interceptor để thêm Authorization header
 const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
  const token = sessionStorage.getItem('accessToken'); // Lấy accessToken từ sessionStorage
@@ -28,7 +33,9 @@ ApiClient.interceptors.request.use(authRequestInterceptor);
 
 // Xử lý lỗi response, bao gồm làm mới token nếu cần
 ApiClient.interceptors.response.use(
-  (response) => response.data, // Trả về response nếu không có lỗi
+   (response): ApiResponse<any> => {
+      return response.data as ApiResponse<any>;
+    },
 
   async (error) => {
     const originalRequest = error.config;
