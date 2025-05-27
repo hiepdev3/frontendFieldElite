@@ -73,7 +73,7 @@ export default function FieldsUser() {
     try {
       setLoading(true); // Bắt đầu loading
       const response = await getAllFieldForUser(); // Gọi API
-      const mappedFields = mapFieldData(response.data);
+      const mappedFields = mapFieldData(response.data.data);
       setFields(mappedFields); // Lưu dữ liệu đã map vào state
     } catch (error) {
       console.error("Error fetching fields:", error); // Xử lý lỗi
@@ -139,7 +139,7 @@ export default function FieldsUser() {
    
     // Xử lý dữ liệu trả về từ backend (nếu cần)
     
-    const mappedFields = mapFieldData(response.data);
+    const mappedFields = mapFieldData(response.data.data);
     setFields(mappedFields);
   } catch (error) {
     console.error("Error checking available fields:", error);

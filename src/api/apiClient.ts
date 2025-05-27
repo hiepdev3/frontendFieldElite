@@ -33,9 +33,9 @@ ApiClient.interceptors.request.use(authRequestInterceptor);
 
 // Xử lý lỗi response, bao gồm làm mới token nếu cần
 ApiClient.interceptors.response.use(
-   (response): ApiResponse<any> => {
-      return response.data as ApiResponse<any>;
-    },
+  (response) => {
+      return response;
+  },
 
   async (error) => {
     const originalRequest = error.config;

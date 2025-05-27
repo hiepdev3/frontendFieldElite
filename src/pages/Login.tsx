@@ -54,7 +54,7 @@ export const Login = () => {
     const handleGoogleLogin = async (accessToken: string) => {
       try {
           const response = await loginWithGoogle(accessToken);
-          console.log('Login successful:', response.data);
+          console.log('Login successful:', response.data.data);
       } catch (error) {
           console.error('Error during Google login:', error);
       }

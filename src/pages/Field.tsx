@@ -130,7 +130,7 @@ export default function Field() {
     try {
       console.log(userId);
       const res = await getAllFieldByUserId(userId);
-      const initialData = res.data.map(item => ({
+      const initialData = res.data.data.map(item => ({
         ...item,
         address: `${item.specificAddress}, ${item.ward}, ${item.district}, ${item.province}`,
         status:
@@ -214,7 +214,7 @@ export default function Field() {
     // Gọi hàm thêm field
     const result = await addField(fieldData);
     // Xử lý tiếp (ví dụ: gọi API addField(fieldData))
-    if (result.code == 200) {
+    if (result.data.code == 200) {
       message.success('Successfully created!');
       setIsModalOpen(false);
       form.resetFields();
@@ -222,7 +222,7 @@ export default function Field() {
     } else {
       message.error('Create failed!');
       await deleteImage(newFileName);
-      console.error(result);
+   
     }
     setIsModalOpen(false);
     form.resetFields();

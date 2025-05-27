@@ -18,8 +18,7 @@ export default function HomeUser() {
     try {
       setLoading(true); // Bắt đầu loading
       const response = await getlistFieldForUser(); // Gọi API
-      console.log("API Response:", response.data);
-      const convertedFields = response.data.map((item) => ({
+      const convertedFields = response.data.data.map((item) => ({
           id: String(item.id), // Chuyển `id` thành chuỗi
           name: item.name, // Giữ nguyên tên
           location: `${item.ward}, ${item.district}, ${item.province}`, // Gộp ward, district, province thành location
@@ -76,7 +75,7 @@ export default function HomeUser() {
       title: 'Diamond Exclusive Week',
       description: 'Diamond members receive 30% off all bookings from Monday to Friday during the promotional week.',
       discount: '10% OFF',
-      image: 'https://images.unsplash.com/photo-1572276596230-6c60bd91f1c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
+      image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1293&q=80',
       expiryDate: 'May 31, 2025',
       isLimited: true
     },
@@ -85,28 +84,28 @@ export default function HomeUser() {
       title: 'Gold Evening Special',
       description: 'Special offer for Gold members: Enjoy 15% off when booking a field from 5:00 PM to 9:00 PM any day throughout June.',
       discount: '8% OFF',
-      image: 'https://images.unsplash.com/photo-1508898578281-774ac4893a3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
+      image: 'https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1173&q=80',
       expiryDate: 'Jun 30, 2025',
       isLimited: true
     },
-    {
-      id: '3',
-      title: 'Silver Morning Deal',
-      description: 'Exclusive for Silver members: Get 10% off when booking a field between 6:00 AM and 11:00 AM on weekdays.',
-      discount: '5% OFF',
-      image: 'https://images.unsplash.com/photo-1599059811221-234c2f9fc8ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
-      expiryDate: 'Jul 31, 2025',
-      isLimited: true
-    },
-    {
-      id: '4',
-      title: 'Morning Field Rush',
-      description: 'Book a field between 6:00 AM and 10:00 AM during the golden hours and get 5% off – available for all customers.',
-      discount: '5% OFF',
-      image: 'https://images.unsplash.com/photo-1509228627159-6452f6b7a2dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
-      expiryDate: 'Jul 15, 2025',
-      isLimited: false
-    }
+    // {
+    //   id: '3',
+    //   title: 'Silver Morning Deal',
+    //   description: 'Exclusive for Silver members: Get 10% off when booking a field between 6:00 AM and 11:00 AM on weekdays.',
+    //   discount: '5% OFF',
+    //   image: 'https://images.unsplash.com/photo-1599059811221-234c2f9fc8ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
+    //   expiryDate: 'Jul 31, 2025',
+    //   isLimited: true
+    // },
+    // {
+    //   id: '4',
+    //   title: 'Morning Field Rush',
+    //   description: 'Book a field between 6:00 AM and 10:00 AM during the golden hours and get 5% off – available for all customers.',
+    //   discount: '5% OFF',
+    //   image: 'https://images.unsplash.com/photo-1509228627159-6452f6b7a2dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80',
+    //   expiryDate: 'Jul 15, 2025',
+    //   isLimited: false
+    // }
 
   ]
   

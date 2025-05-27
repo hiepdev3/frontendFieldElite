@@ -140,7 +140,7 @@ export default function Voucher() {
   const fetchFields = async () => {
       try {
         const res = await getAllFieldByUserId(userId);
-        const formattedFields = res.data.map((item) => ({
+        const formattedFields = res.data.data.map((item) => ({
         id: item.id,
         nameAddress: `${item.name} - ${item.ward}, ${item.district}, ${item.province} ${
           item.status == 1
@@ -164,7 +164,7 @@ export default function Voucher() {
     const res = await getAllVouchersByUserId(userId123);
 
     // Định dạng dữ liệu trả về nếu cần
-    const formattedVouchers = res.map((item) => ({
+    const formattedVouchers = res.data.data.map((item) => ({
       id: item.id,
       code: item.code,
       discountPercent: item.discountPercent,
@@ -256,7 +256,7 @@ export default function Voucher() {
       };
       console.log("day la gia tri add thử"+values);
       const result = await addVoucher(voucherData);
-      if (result.code == 200) {
+      if (result.data.code == 200) {
           message.success('Voucher added successfully!');
           handleModalCancel();
           handleRefresh();
@@ -371,7 +371,7 @@ const handleEditOK = async () => {
           cancelText: 'No',
           onOk: async () => {
               const result =  await updateVoucher(voucherData);
-                if (result.code == 200) {
+                if (result.data.code == 200) {
                     message.success('Voucher updated successfully!');
                     handleModalCancel();
                     handleRefresh();
@@ -396,7 +396,7 @@ const handleEditOK = async () => {
           cancelText: 'No',
           onOk: async () => {
               const result =  await updateVoucher(voucherData);
-                if (result.code == 200) {
+                if (result.data.code == 200) {
                     message.success('Voucher updated successfully!');
                     handleModalCancel();
                     handleRefresh();
@@ -434,7 +434,7 @@ const handleEditOK = async () => {
             onOk: async () => {
                 console.log("day la gia tri add thử", voucherData);
                 const result =  await addVoucher(voucherData);
-                if (result.code == 200) {
+                if (result.data.code == 200) {
                     message.success('Voucher added successfully!');
                     handleModalCancel();
                     handleRefresh();
@@ -457,7 +457,7 @@ const handleEditOK = async () => {
           cancelText: 'No',
           onOk: async () => {
               const result =  await updateVoucher(voucherData);
-                if (result.code == 200) {
+                if (result.data.code == 200) {
                     message.success('Voucher updated successfully!');
                     handleModalCancel();
                     handleRefresh();

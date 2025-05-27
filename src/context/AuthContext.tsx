@@ -27,14 +27,15 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const login = async (username: string, password: string): Promise<string> => {
     // Gọi API để đăng nhập
     const response = await loginAll(username, password);
-    if (response.code === 200) {
+    console.log('Login response:', response);
+    if (response.data.code == 200) {
       // Lưu accessToken vào sessionStorage
-      sessionStorage.setItem('accessToken', response.data.accessToken);
+      sessionStorage.setItem('accessToken', response.data.data.accessToken);
 
       // Gọi API lấy thông tin người dùng
       const userResponse = await getMe();
-      if (userResponse.code === 200) {
-        const data = userResponse.data;
+      if (userResponse.data.code == 200) {
+        const data = userResponse.data.data;
         const userData: AppUser = {
           id: data.id,
           email: data.email,
