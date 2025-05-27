@@ -29,12 +29,12 @@ import RegisterForm from './registerForm.tsx';
 import ManagerAccount from '../components/ManageAccount.tsx';
 const Categories = lazy(() => import('./Categories.tsx'));
 const Vendors = lazy(() => import('./Vendors.tsx'));
-const Admins = lazy(() => import('./Admins.tsx'));
+// const Admins = lazy(() => import('./Admins.tsx'));
 const Products = lazy(() => import('./Products.tsx'));
-const ResetPassword = lazy(() => import('./ResetPassword.tsx'));
-const Account = lazy(() => import('./Account.tsx'));
+// const ResetPassword = lazy(() => import('./ResetPassword.tsx'));
+// const Account = lazy(() => import('./Account.tsx'));
 const Sales = lazy(() => import('./Sales.tsx'));
-const SalesHistory = lazy(() => import('./SalesHistory.tsx'));
+// const SalesHistory = lazy(() => import('./SalesHistory.tsx'));
 const Customers = lazy(() => import('./Customers.tsx'));
 const Field = lazy(() => import('./Field.tsx'));
 
@@ -57,13 +57,13 @@ export const router = createBrowserRouter([
           crumb: () => <Link to="/sales"><Space><ShoppingCartOutlined />Sales</Space></Link>,
         },
       },
-      {
-        path: 'sales-history',
-        element: <SalesHistory />,
-        handle: {
-          crumb: () => <Link to="/sales-history"><Space><HistoryOutlined />Sales History</Space></Link>,
-        },
-      },
+      // {
+      //   path: 'sales-history',
+      //   element: <SalesHistory />,
+      //   handle: {
+      //     crumb: () => <Link to="/sales-history"><Space><HistoryOutlined />Sales History</Space></Link>,
+      //   },
+      // },
       {
         path: 'field',
         element: <Field />,
@@ -99,13 +99,13 @@ export const router = createBrowserRouter([
           crumb: () => <Link to="/vendors"><Space><ShopOutlined />Vendors</Space></Link>,
         },
       },
-      {
-        path: 'admins',
-        element: <Admins />,
-        handle: {
-          crumb: () => <Link to="/admins"><Space><SolutionOutlined />Admins</Space></Link>,
-        },
-      },
+      // {
+      //   path: 'admins',
+      //   element: <Admins />,
+      //   handle: {
+      //     crumb: () => <Link to="/admins"><Space><SolutionOutlined />Admins</Space></Link>,
+      //   },
+      // },
       {
         path: 'customers',
         element: <Customers />,
@@ -118,20 +118,20 @@ export const router = createBrowserRouter([
         element: <ManagerAccount />,
 
       },
-      {
-        path: 'reset-password',
-        element: <ResetPassword />,
-        handle: {
-          crumb: () => <Link to="/reset-password"><Space><KeyOutlined />Reset password</Space></Link>,
-        },
-      },
-      {
-        path: 'account',
-        element: <Account />,
-        handle: {
-          crumb: () => <Link to="/account"><Space><UserOutlined />Account</Space></Link>,
-        },
-      },
+      // {
+      //   path: 'reset-password',
+      //   element: <ResetPassword />,
+      //   handle: {
+      //     crumb: () => <Link to="/reset-password"><Space><KeyOutlined />Reset password</Space></Link>,
+      //   },
+      // },
+      // {
+      //   path: 'account',
+      //   element: <Account />,
+      //   handle: {
+      //     crumb: () => <Link to="/account"><Space><UserOutlined />Account</Space></Link>,
+      //   },
+      // },
       {
         path: 'products/:id',
         element: <ProductDetail />,

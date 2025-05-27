@@ -82,7 +82,7 @@ export const Login = () => {
 
             {/* Google Login Button */}
              <button className="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl mb-6 flex items-center justify-center transition-all hover:bg-gray-50 hover:shadow-md group"
-              onClick={handleGoogleClick}>
+             onClick={() => handleGoogleClick()}>
               <svg
                 className="w-5 h-5 mr-3"
                 viewBox="0 0 24 24"

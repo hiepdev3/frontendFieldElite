@@ -178,16 +178,16 @@ export default function Field() {
     formData.append('fileName', newFileName);
 
   // Gọi hàm uploadImage để upload ảnh
-    const uploadResponse = await uploadImage(formData);
+    // const uploadResponse = await uploadImage(formData);
 
 
-    if (uploadResponse.status !== 200) {
-      message.error('Upload image failed!');
-      return;
-    }
+    // if (uploadResponse.status !== 200) {
+    //   message.error('Upload image failed!');
+    //   return;
+    // }
 
-    // Đường dẫn ảnh sau khi upload
-    const imagePath = `/imagefield/${newFileName}`;
+    // // Đường dẫn ảnh sau khi upload
+    // const imagePath = `/imagefield/${newFileName}`;
 
     const provinceObj = provinces.find(p => p.code == values.province);
     const districtObj = districts.find(d => d.code == values.district);
@@ -209,7 +209,7 @@ export default function Field() {
         status: statusValue,
         description: values.description,
         userId: userId,
-        image: imagePath,
+        image: "",
     };
     // Gọi hàm thêm field
     const result = await addField(fieldData);
