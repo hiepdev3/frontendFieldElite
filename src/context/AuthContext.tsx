@@ -3,7 +3,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { loginAll, getMe } from '../userUI/apiUser/PublicServices';
 import { message } from 'antd';
 import { loginWithGoogle } from '../userUI/apiUser/PublicServices';
-
+import { addListCart} from '../userUI/apiUser/PublicServices';
 interface IAuthContext {
   isLoggedIn: boolean;
   currentUser: AppUser | null;
@@ -36,6 +36,36 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       const userResponse = await getMe();
       if (userResponse.data.code == 200) {
         const data = userResponse.data.data;
+        // Lưu thông tin người dùng vào sessionStorage và localStorage
+        const storedCart = localStorage.getItem('cart');
+            if (storedCart) {
+                  const cart = JSON.parse(storedCart);
+                  // Chuyển đổi cart thành định dạng carts
+                  const carts = cart.map((item: any) => ({
+                    fieldId: item.id,
+                    bookingDate: `${item.date}T${item.timeSlots}:00.000Z`,
+                    timeEnd: new Date(
+                      new Date(`${item.date}T${item.timeSlots}:00.000Z`).getTime() +
+                        item.duration * 60 * 1000
+                    ).toISOString(),
+                    status: 0,
+                }));
+              const payload = {
+                userId: data.id,
+                carts: carts,
+              };
+              
+              try {
+                const addCartResponse = await addListCart(payload);
+                cartCount= addCartResponse.data.data.carts.length;
+                
+                console.log('Carts added successfully:', addCartResponse.data.message);
+              } catch (error) {
+                console.error('Error adding carts:', error);
+              }
+            } 
+
+
         const userData: AppUser = {
           id: data.id,
           email: data.email,
@@ -44,11 +74,13 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         };
 
         localStorage.setItem('cartCount', userData.cartCount.toString());
+        localStorage.setItem('fullname', userData.fullName);
         sessionStorage.setItem('fullname', data.fullName);
         sessionStorage.setItem('roleid', data.role.id.toString());
         sessionStorage.setItem('tierid', data.tierId.toString());
+        sessionStorage.setItem('userid', data.id.toString());
         sessionStorage.setItem('user', 'true');
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('currentUser','true');
         
         // Cập nhật state
         setCurrentUser(userData);
