@@ -9,16 +9,16 @@ import {
   AppstoreOutlined,
   DashboardOutlined,
   DropboxOutlined,
-  HistoryOutlined,
-  KeyOutlined,
+  // HistoryOutlined,
+  // KeyOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
-  SolutionOutlined,
+  //SolutionOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { ProductDetail } from './ProductDetail.tsx';
 import { lazy } from 'react';
-import ForgotPassword from './ForgotPassword.tsx';
+// import ForgotPassword from './ForgotPassword.tsx';
 import HomeUser from '../userUI/pagesUser/HomeUser.tsx';
 import FieldsUser from '../userUI/pagesUser/FieldsUser.tsx';
 import PromotionsUser from '../userUI/pagesUser/PromotionsUser.tsx';
@@ -170,10 +170,10 @@ export const router = createBrowserRouter([
     path: '/account-user',
     element: <AccountUser />,
   },
-  {
-    path: '/forgot-password',
-    element: <ForgotPassword />,
-  },
+  // {
+  //   path: '/forgot-password',
+  //   element: <ForgotPassword />,
+  // },
   {
     path: '/registration',
     element: <RegisterForm />,
