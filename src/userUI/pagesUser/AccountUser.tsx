@@ -1,12 +1,18 @@
 'use client';
 import { useGoogleFont } from '../fonts/fonts'
 import Components from "../componentUser"
+import {useNavigate} from 'react-router-dom';
 import '../fonts/indexUser.css';
 import React from "react"
+import {useAuth} from '../../context/AuthContext.tsx';
+import {useQueryClient} from 'react-query';
 
 export default function AccountUser() {
   const fontFamily = useGoogleFont('Inter')
-  
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { logout } = useAuth(); // Lấy hàm logout từ AuthContext
+    
   // Sample user data
   const user = {
     id: '12345',
@@ -154,7 +160,11 @@ export default function AccountUser() {
                 
                 {/* Logout */}
                 <div className="p-4 border-t border-gray-200">
-                  <button className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium cursor-pointer">
+                  <button  onClick= {() => {
+                        queryClient.clear();
+                        logout();
+                        navigate('/login');
+                      }} className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>

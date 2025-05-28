@@ -7,12 +7,11 @@ import { getAllFieldForUser } from '../apiUser/PublicServices';
 import {initializeCartCount} from '../../utils/cartUtils'; // Giả sử bạn có một hàm để khởi tạo cartCount
 import { getAvailableFields } from '../apiUser/PublicServices';
 import { message } from 'antd';
-
-
+import  {addTheCart} from '../apiUser/PublicServices';
+import {getListCart} from '../apiUser/PublicServices';
 
 export default function FieldsUser() {
-  const [cartCount, setCartCount] = useState<number>(0);
-
+  const [cartCount, setCartCount] = useState<number>(0)
   const [allfields, setFields] = useState([]); // State để lưu danh sách fields
   const [loading, setLoading] = useState(true); // State để hiển thị trạng thái loading
  
@@ -24,12 +23,12 @@ export default function FieldsUser() {
     initializeCartCount(setCartCount); // Gọi hàm từ cartUtils
   }, []);
 
-  const addToCart = (field: any) => {
+  const addToCart = async (field: any) => {
     // Lấy danh sách giỏ hàng hiện tại từ localStorage
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
     // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-    const existingField = cart.find((item: any) => item.id === field.id);
+    const existingField = cart.find((item: any) => item.id == field.id);
 
     if (!existingField) {
       // Nếu chưa tồn tại, thêm sản phẩm vào giỏ hàng
@@ -39,18 +38,32 @@ export default function FieldsUser() {
         date: selectedDate, // Thêm ngày từ selectedDate
         duration: selectedDuration,
       };
+     
+      const accessToken = sessionStorage.getItem('accessToken'); // Hoặc localStorage nếu bạn lưu ở đó
+      if (accessToken) {
+      try {
+        const userId = sessionStorage.getItem('userId'); // Lấy userId từ sessionStorage
+        if (!userId) {
+          throw new Error('User ID is missing in session.');
+        } 
+        const reponse=   await addTheCart(userId, updatedField);
+        console.log(reponse);
+        const responseCart = await getListCart(parseInt(userId, 10));
+        
+      }catch (error) {
+        message.error('Failed to add cart to server.');
+      }
+    }else {
       cart.push(updatedField);
       localStorage.setItem('cart', JSON.stringify(cart)); // Lưu lại vào localStorage
       const cartCount = cart.length;
       localStorage.setItem('cartCount', cartCount.toString());
       setCartCount(cartCount); // Gọi trực tiếp hàm cập nhật state trong cùng tab
       initializeCartCount(setCartCount); // Cập nhật cartCount trong localStorage
-    
       message.success('Added to cart successfully!');
-
+      } 
     } else {
        message.error('This field is already in the cart!');
- 
     }
   };
   const mapFieldData = (data) => {

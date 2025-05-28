@@ -23,17 +23,21 @@ export const Login = () => {
       e.preventDefault();
       setLoading(true);
       try {
+     
         // Gọi hàm login từ AuthContext
         const reponse = await login(formData.username, formData.password);
-        console.log("hiep day" , reponse);
-        message.success('Login successful!');
-        const roleid = sessionStorage.getItem('roleid');
-          if (roleid === '2' || roleid === '1') {
-            navigate('/dashboard');
-          } else {
-            navigate('/');
-          }
-        
+        if(reponse){
+            console.log("hiep day ",reponse);
+            message.success('Login successful!');
+            const roleid = sessionStorage.getItem('roleid');
+              if (roleid == '2' || roleid == '1') {
+                navigate('/dashboard');
+              } else {
+                navigate('/');
+              }
+        }else{
+            message.error('Login fail!');
+        }
       } catch (error: any) {
         message.error(error.message || 'Login failed. Please try again.');
       } finally {

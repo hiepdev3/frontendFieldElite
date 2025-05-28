@@ -47,7 +47,7 @@ export const addListCart = (payload: {
 };
 
 
-export const addTheCart = (userId: number, cart: { 
+export const addTheCart = (userId: string, cart: { 
       id: string; 
       name: string; 
       location: string; 
@@ -73,4 +73,26 @@ export const addTheCart = (userId: number, cart: {
 
 export const getListCart = (userId: number) => {
    return ApiClient.get(`/api/Customer/viewAllCart?userId=${userId}`);
+};
+
+export const getCartCount = (userId: number) => {
+  return ApiClient.get(`/api/Customer/countCartCount?userId=${userId}`);
+};
+
+export const sendVerificationCode = (email: string) => {
+  return ApiClient.post(`/api/Auth/send-verification-code?email=${encodeURIComponent(email)}`);
+};
+
+export const verifyCode = (email: string, code: string) => {
+  return ApiClient.post(`/api/Auth/verify-code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
+};
+
+export const registerSimple = (payload: { 
+  fullName: string; 
+  email: string; 
+  password: string; 
+  roleId: number; 
+  phoneNumber: string; 
+}) => {
+  return ApiClient.post('/api/Auth/register-simple', payload);
 };

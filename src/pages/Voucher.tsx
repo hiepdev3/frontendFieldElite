@@ -18,8 +18,8 @@ let previousVoucher = null;
 
 
 export default function Voucher() {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  const userId = currentUser.id;
+  
+  const userId = sessionStorage.getItem('userid') ; // Lấy userId từ sessionStorage hoặc localStorage
   const [dataSource, setDataSource] = useState([]);
   const [search, setSearch] = useState('');
   const [originaldata, setOriginaldata] = useState([]);
@@ -158,13 +158,13 @@ export default function Voucher() {
       }
   };
   // Lấy danh sách voucher theo userId
-  const fetchVouchers = async (userId123) => {
+  const fetchVouchers = async (userId) => {
   try {
     // Gọi API để lấy danh sách voucher theo userId
-    const res = await getAllVouchersByUserId(userId123);
+    const res = await getAllVouchersByUserId(userId);
 
     // Định dạng dữ liệu trả về nếu cần
-    const formattedVouchers = res.data.data.map((item) => ({
+    const formattedVouchers = res.data.map((item) => ({
       id: item.id,
       code: item.code,
       discountPercent: item.discountPercent,
@@ -184,6 +184,7 @@ export default function Voucher() {
                 item.status == 0 ? 'Inactive' : 
                 item.status == 2 ? 'In Use' : 'Unknown',
       }));
+      console.log(formattedVouchers);
       setDataSource(formattedVouchers);
       setOriginaldata(formattedVouchers);
   } catch (err) {

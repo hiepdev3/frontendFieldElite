@@ -4,7 +4,6 @@ import Components from "../componentUser"
 import '../fonts/indexUser.css';
 import React, { useEffect, useState } from 'react';
 
-
 export default function CartUser() {
   const fontFamily = useGoogleFont('Inter')
   const [cartItems, setCartItems] = useState([]);
@@ -12,6 +11,7 @@ export default function CartUser() {
   // Lấy dữ liệu từ localStorage khi component được render
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
+   
     if (storedCart) {
        const parsedCart = JSON.parse(storedCart).map((item) => ({
         id: item.id,
@@ -24,40 +24,15 @@ export default function CartUser() {
         pricePerHour: item.pricePerHour,
         image: item.image,
       }));
-      console.log("Parsed Cart Items:", parsedCart);
+    
       setCartItems(parsedCart);
     }
   }, []);
-  // Sample cart data
-  // const cartItems = [
-  //   {
-  //     id: '1',
-  //     fieldId: '1',
-  //     fieldName: 'Green Valley Stadium',
-  //     location: 'Downtown, City Center',
-  //     date: '2023-08-15',
-  //     timeSlot: '18:00 - 20:00',
-  //     hours: 2,
-  //     pricePerHour: 120,
-  //     image: 'https://images.unsplash.com/photo-1521731978332-9e9e714bdd20?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80'
-  //   },
-  //   {
-  //     id: '2',
-  //     fieldId: '5',
-  //     fieldName: 'Sunset Arena',
-  //     location: 'Westside, Beach District',
-  //     date: '2023-08-18',
-  //     timeSlot: '16:00 - 18:00',
-  //     hours: 2,
-  //     pricePerHour: 150,
-  //     image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1093&q=80'
-  //   }
-  // ]
+
   const clearCart = () => {
-    // Xóa giỏ hàng trong localStorage
+    
     localStorage.removeItem('cart');
     
-    // Đặt lại state giỏ hàng
     setCartItems([]);
   };
   // Calculate subtotal
@@ -145,7 +120,7 @@ export default function CartUser() {
                           {/* Price and Actions */}
                           <div className="w-full sm:w-3/12 px-4 flex flex-col items-end justify-between">
                             <div className="text-green-600 font-bold text-lg mb-2">
-                              ${item.pricePerHour * item.hours}
+                              {item.pricePerHour * item.hours} VNĐ
                             </div>
                             <div className="flex space-x-2">
                               <button className="text-gray-500 hover:text-gray-700 cursor-pointer">
@@ -213,16 +188,16 @@ export default function CartUser() {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="text-gray-800 font-medium">${subtotal.toFixed(2)}</span>
+                      <span className="text-gray-800 font-medium">{subtotal.toFixed(2)}VNĐ</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Tax (8%)</span>
-                      <span className="text-gray-800 font-medium">${tax.toFixed(2)}</span>
+                      <span className="text-gray-800 font-medium">{tax.toFixed(2)}VNĐ</span>
                     </div>
-                    <div className="pt-4 border-t border-gray-200">
+                    <div className="pt-4 border-t border-gray-200"> 
                       <div className="flex justify-between">
                         <span className="text-lg font-bold text-gray-800">Total</span>
-                        <span className="text-lg font-bold text-green-600">${total.toFixed(2)}</span>
+                        <span className="text-lg font-bold text-green-600">{total.toFixed(2)}$</span>
                       </div>
                     </div>
                   </div>

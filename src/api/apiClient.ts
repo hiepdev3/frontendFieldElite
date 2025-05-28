@@ -8,8 +8,8 @@ export interface ApiResponse<T> {
 }
 // Interceptor để thêm Authorization header
 const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
- const token = sessionStorage.getItem('accessToken'); // Lấy accessToken từ sessionStorage
-   if (token) {
+  const token = sessionStorage.getItem('accessToken'); // Lấy accessToken từ sessionStorage
+ if (token) {
     config.headers.Authorization = `Bearer ${token}`; // Thêm Authorization header
   }
   return config;
@@ -21,7 +21,7 @@ export const ApiClient = axios.create({
   // headers: {
   //   'Content-Type': 'application/json', // Định dạng JSON
   // },
-   baseURL: 'http://localhost:5000', // URL gốc của backend
+   baseURL: 'https://backend-sohu-production.up.railway.app', // URL gốc của backend
    headers: {
     'Content-Type': 'application/json',
   },
@@ -46,10 +46,12 @@ ApiClient.interceptors.response.use(
 
       try {
         // Gọi API refresh token
-        const refreshResponse = await axios.post<AccessTokenResponse>(
-          `${import.meta.env.VITE_ROOT_URL}/api/accounts/refresh`,
+        const refreshResponse = await axios.post(
+          'https://backend-sohu-production.up.railway.app/refresh',
           {
-            refreshToken: localStorage.getItem('refreshToken'),
+            userId: sessionStorage.getItem('userid'), // Lấy userId từ sessionStorage
+            refreshToken: sessionStorage.getItem('refreshToken'), // Lấy refreshToken từ sessionStorage
+          
           },
           {
             headers: {
@@ -59,8 +61,8 @@ ApiClient.interceptors.response.use(
         );
 
         // Lưu token mới vào localStorage
-        localStorage.setItem('accessToken', refreshResponse.data.accessToken);
-        localStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
+        sessionStorage.setItem('accessToken', refreshResponse.data.accessToken);
+        sessionStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
 
         // Cập nhật request ban đầu với token mới
         originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
@@ -71,13 +73,14 @@ ApiClient.interceptors.response.use(
         console.error('Failed to refresh token:', refreshError);
 
         // Xóa token và chuyển hướng đến trang đăng nhập
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
+          sessionStorage.removeItem('userid');
+        // window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
-
+    
     // Trả về lỗi khác
     return Promise.reject(error);
   }

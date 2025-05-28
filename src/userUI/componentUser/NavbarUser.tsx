@@ -25,7 +25,7 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
       initializeCartCount(setCartCount);
      // Lắng nghe sự kiện storage để cập nhật cartCount khi localStorage thay đổi
       const handleStorageChange = (event: StorageEvent) => {
-        console.log("deo on roi ");
+       
         if (event.key == 'cartCount') {
           const updatedCartCount = event.newValue;
           if (updatedCartCount) {
@@ -54,7 +54,7 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="12 6 8 12 12 18 16 12 12 6" />
                 </svg>
-                FieldElite
+                SUHO
               </div>
             </a>
             <div className="hidden md:ml-10 md:flex md:space-x-8">

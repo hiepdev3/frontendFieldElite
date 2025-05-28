@@ -16,39 +16,46 @@ const columns = [
     title: 'ID',
     dataIndex: 'id',
     key: 'id',
+    width: 50, 
   },
   {
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
+    width: 150,
   },
   {
     title: 'Type',
     dataIndex: 'type',
     key: 'type',
+    width: 120, 
     // render: (value) => value === 'artificial' ? 'Cỏ nhân tạo' : 'Cỏ tự nhiên',
   },
   {
     title: 'Size',
     dataIndex: 'size',
     key: 'size',
+    width: 100,
     // render: (value) => `${value} người`,
   },
   {
     title: 'Price(per hour)',
     dataIndex: 'price',
     key: 'price',
+    width: 150, 
     // render: (value) => `${value} VNĐ`,
   },
   {
     title: 'Address',
     dataIndex: 'address',
     key: 'address',
+     width: 300,
   },
   {
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
+    width: 50, 
     // render: (value) => {
     //   if (value === 'active') return 'Đang sử dụng';
     //   if (value === 'maintenance') return 'Bảo trì';
@@ -60,17 +67,17 @@ const columns = [
     dataIndex: 'description',
     key: 'description',
   },
-   {
-    title: 'image',
-    dataIndex: 'image',
-    key: 'image',
-  },
+  //  {
+  //   title: 'image',
+  //   dataIndex: 'image',
+  //   key: 'image',
+  //   width: 150, 
+  // },
 ];
 
 
 export default function Field() {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  const userId = currentUser.id;
+  const userId = sessionStorage.getItem('userid') ; 
   const [search, setSearch] = useState('');
   const [initialData, setInitialData] = useState([]);
   const [dataSource, setDataSource] = useState([]);
@@ -128,7 +135,7 @@ export default function Field() {
 
   const fetchFields = async () => {
     try {
-      console.log(userId);
+      
       const res = await getAllFieldByUserId(userId);
       const initialData = res.data.data.map(item => ({
         ...item,

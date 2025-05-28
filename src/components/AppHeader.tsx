@@ -12,6 +12,7 @@ export const AppHeader = memo(() => {
   const {currentUser, logout} = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const fullname = sessionStorage.getItem('fullname') ;
 
 
   const items: MenuProps['items'] = [
@@ -59,18 +60,18 @@ export const AppHeader = memo(() => {
       }}
     >
       <Link to="/" style={{fontSize: '1.5rem', color: "white", fontWeight: "bold"}}>
-        <RocketTwoTone twoToneColor="rgb(24, 144, 255)"/> Hello FieldElite
+        <RocketTwoTone twoToneColor="rgb(24, 144, 255)"/> Hello SUHO
       </Link>
-      {currentUser && (
+
         <Dropdown menu={{items}} trigger={['click']} arrow>
           <a onClick={(e) => e.preventDefault()} data-cy="accountname">
             <Space>
-              <Typography style={{color: 'white'}}>Hello {currentUser.id}</Typography>
+              <Typography style={{color: 'white'}}>Hello {fullname}</Typography>
               <Typography><DownOutlined style={{color: 'white'}}/></Typography>
             </Space>
           </a>
         </Dropdown>
-      )}
+      
     </Header>
   );
 });
