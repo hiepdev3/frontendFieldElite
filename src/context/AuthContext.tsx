@@ -3,13 +3,14 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { loginAll, getMe } from '../userUI/apiUser/PublicServices';
 
 import { addListCart} from '../userUI/apiUser/PublicServices';
+import { message } from 'antd';
 
-
-interface IAuthContext {
+interface IAuthContext {  
   isLoggedIn: boolean;
   currentUser: AppUser | null;
   login: (username: string, password: string) => Promise<string>;
   logout: () => void;
+  fetchUserData: () => Promise<AppUser | null>;
 }
 
 const AuthContext = createContext<IAuthContext>({
@@ -17,6 +18,7 @@ const AuthContext = createContext<IAuthContext>({
   currentUser: null,
   login: async () => '',
   logout: () => {},
+  fetchUserData: async () => null, 
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
@@ -30,70 +32,22 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       // Gọi API để đăng nhập
       const response = await loginAll(username, password);
 
-      if (response.data.code === 200) {
+      if (response.data.code == 200) {
         // Lưu accessToken vào sessionStorage
         sessionStorage.setItem('accessToken', response.data.data.accessToken);
 
         // Gọi API lấy thông tin người dùng
-        const userResponse = await getMe();
-        if (userResponse.data.code == 200) {
-          const data = userResponse.data.data;
-          const cartCount  = 0 ;
-          
-          if(data.role.id == 3) {
-                // Kiểm tra xem có giỏ hàng trong localStorage không
-                const storedCart = localStorage.getItem('cart');
-                if (storedCart) {
-                      const cart = JSON.parse(storedCart);
-                      if (Array.isArray(cart) && cart.length > 0) {
-                        const payload = {
-                          userId: data.id,
-                          carts: cart,
-                        };
-
-                    try {
-                      const addCartResponse = await addListCart(payload);
-                      if (addCartResponse.data.code !== 200) {
-                        throw new Error(addCartResponse.data.message);
-                      }
-                      
-                    } catch (error) {
-                      throw new Error("Failed to sync cart.");
-                    }
-                  }
-                }   
-           }
-
-            const userData: AppUser = {
-                            id: data.id,
-                            email: data.email,
-                            cartCount: cartCount,
-                            fullName: data.fullName,
-                          };
-          
-         
-
-          sessionStorage.setItem('fullname', data.fullName);
-          sessionStorage.setItem('roleid', data.role.id.toString());
-          sessionStorage.setItem('tierid', data.tierId.toString());
-          sessionStorage.setItem('userid', data.id.toString());
-          sessionStorage.setItem('user', 'true');
-          localStorage.setItem('currentUser', 'true');
-
-          // Cập nhật state
-          setCurrentUser(userData);
-          setIsLoggedIn(true);
-
-          return "ok"; // Trả về "ok" nếu mọi thứ thành công
-        } else {
-          throw new Error("Failed to fetch user data.");
+        const userData = await fetchUserData();
+        if (!userData) {
+            throw new Error("Failed to fetch user data.");
         }
-      } else {
-        throw new Error("Invalid username or password.");
-      }
+            // Cập nhật state
+            setCurrentUser(userData);
+            setIsLoggedIn(true);
+        } 
+          return "ok"; 
     } catch (error: any) {
-      console.error("Login error:", error.message || error);
-      throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+      message.error('Đăng nhập không thành công. Vui lòng kiểm tra thông tin đăng nhập của bạn và thử lại.');
     }
   };
 
@@ -105,6 +59,63 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     setIsLoggedIn(false);
     setCurrentUser(null);
   };
+
+
+  const fetchUserData = async (): Promise<AppUser | null> => {
+      try {
+        // Gọi API lấy thông tin người dùng
+        const userResponse = await getMe();
+        if (userResponse.data.code === 200) {
+          const data = userResponse.data.data;
+
+          // Kiểm tra role và xử lý giỏ hàng nếu cần
+          if (data.role.id === 3) {
+            const storedCart = localStorage.getItem('cart');
+            if (storedCart) {
+              const cart = JSON.parse(storedCart);
+              if (Array.isArray(cart) && cart.length > 0) {
+                const payload = {
+                  userId: data.id,
+                  carts: cart,
+                };
+
+                try {
+                  const addCartResponse = await addListCart(payload);
+                  if (addCartResponse.data.code !== 200) {
+                    throw new Error(addCartResponse.data.message);
+                  }
+                } catch (error) {
+                  throw new Error("Failed to sync cart.");
+                }
+              }
+            }
+          }
+
+          // Tạo đối tượng AppUser
+          const userData: AppUser = {
+            id: data.id,
+            email: data.email,
+            cartCount: 0, // Giá trị mặc định, có thể cập nhật sau
+            fullName: data.fullName,
+          };
+
+          // Lưu thông tin vào sessionStorage
+          sessionStorage.setItem('fullname', data.fullName);
+          sessionStorage.setItem('roleid', data.role.id.toString());
+          sessionStorage.setItem('tierid', data.tierId.toString());
+          sessionStorage.setItem('userid', data.id.toString());
+          sessionStorage.setItem('user', 'true');
+        
+
+          return userData;
+        } else {
+          throw new Error("Failed to fetch user data.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        return null;
+      }
+    };
 
   useEffect(() => {
     // Khởi tạo danh sách cart nếu chưa tồn tại
@@ -129,7 +140,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, currentUser, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, currentUser, login, logout, fetchUserData }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,7 +6,11 @@ import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { EyeIcon, EyeOffIcon, UserIcon, MailIcon, LockIcon, PhoneIcon } from "lucide-react";
 import { registerSimple } from '../userUI/apiUser/PublicServices';
-import { sendVerificationCode } from '../userUI/apiUser/PublicServices'; // Import the function to send verification code
+import { sendVerificationCode,verifyCode } from '../userUI/apiUser/PublicServices'; // Import the function to send verification code
+import { message } from 'antd'; // Import message từ Ant Design
+
+
+
 interface RegistrationFormProps {
   onSubmit: (email: string) => void;
 }
@@ -16,7 +20,7 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
     fullName: "",
     email: "",
     password: "",
-    roleId: 1, // Default role for customer
+    roleId: 3, // Default role for customer
     phoneNumber: "",
     verificationCode: "",
   });
@@ -36,39 +40,89 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
       // Gọi API gửi mã xác minh
       await sendVerificationCode(formData.email);
       setIsCodeSent(true);
-      alert("Verification code sent to your email!");
+      message.success("Verification code sent to your email!"); // Hiển thị thông báo thành công
+       setTimeout(() => {
+        setIsCodeSent(false);
+      }, 60000);
     } catch (error) {
-      console.error("Error sending verification code:", error);
-      alert("Failed to send verification code. Please try again.");
-    }
+     message.error("Failed to send verification code. Please try again."); // Hiển thị thông báo lỗi
+  }
   };
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-    
-  //   // Simulate API call
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //     onSubmit(formData.email);
-  //   }, 1500);
-  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+// Kiểm tra các trường trước khi gửi
+      if (!formData.fullName.trim()) {
+        message.error('Full Name is required.');
+        setIsLoading(false);
+        return;
+      }
 
-    try {
-      // Gọi API đăng ký
+      if (!formData.email.trim()) {
+        message.error('Email is required.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!formData.password.trim()) {
+        message.error('Password is required.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (formData.password.length < 8 || formData.password.length > 30) {
+        message.error('Password must be between 8 and 30 characters.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!formData.phoneNumber.trim()) {
+        message.error('Phone Number is required.');
+        setIsLoading(false);
+        return;
+      }
+      if (!formData.verificationCode.trim()) {
+        message.error('Verification Code is required.');
+        setIsLoading(false);
+        return;
+      }
+        
+
+      
+     
+  try {
+    // Gọi API verifyCode để kiểm tra mã xác minh
+    const verifyResponse = await verifyCode(formData.email, formData.verificationCode);
+
+    // Kiểm tra phản hồi từ API
+    if (verifyResponse.data.code === 200) {
+      // Nếu mã xác minh hợp lệ, tiếp tục gửi form đăng ký
       const response = await registerSimple(formData);
-      console.log("Registration successful:", response.data);
-      alert("Registration successful!");
-      onSubmit(formData.email);
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+      if (response.data.code === 200) {
+        message.success('Registration successful!');
+        window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
+      } 
+    } 
+  } catch (error: any) {
+    // Xử lý lỗi từ Axios
+      if (error.response && error.response.data) {
+        console.log('Error response:', error.response.data);
+        if( error.response.data.message === "User already exists") {
+          message.error('Email already exists. Please use a different email.');
+        }else{
+          message.error('Invalid verification code. Please check and try again!');
+        }
+      } else {
+        // Xử lý lỗi không có phản hồi từ server
+        message.error('An unexpected error occurred. Please try again!');
+      }
+  } finally {
+    setIsLoading(false);
+  }
+
+};
 
   return (
     <motion.div
@@ -99,7 +153,7 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                   className="pl-10"
                   value={formData.fullName}
                   onChange={handleChange}
-                  required
+                  
                 />
               </div>
             </div>
@@ -116,7 +170,7 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                   className="pl-10"
                   value={formData.email}
                   onChange={handleChange}
-                  required
+                  
                 />
               </div>
                <div className="flex items-center space-x-2 mt-2">
@@ -126,7 +180,7 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                   placeholder="Enter verification code"
                   value={formData.verificationCode}
                   onChange={handleChange}
-                  required
+                  
                   className="flex-1"
                 />
                 <Button
@@ -141,8 +195,6 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
             </div>
             
 
-
-
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -155,7 +207,8 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                   className="pl-10"
                   value={formData.password}
                   onChange={handleChange}
-                  required
+                  
+        
                 />
                 <button
                   type="button"
@@ -183,7 +236,7 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                   className="pl-10"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  required
+                  
                 />
               </div>
             </div>
@@ -195,9 +248,9 @@ export default function RegistrationForm({ onSubmit }: RegistrationFormProps) {
                 value={formData.roleId}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
-                required
+                
               >
-                <option value={1}>Customer</option>
+                <option value={3}>Customer</option>
                 <option value={2}>Người quản lý sân cho thuê</option>
               </select>
             </div>

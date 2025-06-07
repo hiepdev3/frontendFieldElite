@@ -4,7 +4,7 @@ import Components from "../componentUser"
 import '../fonts/indexUser.css';
 import React, { useState, useEffect } from "react";
 import { getAllFieldForUser } from '../apiUser/PublicServices';
-import {initializeCartCount} from '../../utils/cartUtils'; // Giả sử bạn có một hàm để khởi tạo cartCount
+import {initializeCartCount,handleaddToCart} from '../../utils/cartUtils'; // Giả sử bạn có một hàm để khởi tạo cartCount
 import { getAvailableFields } from '../apiUser/PublicServices';
 import { message } from 'antd';
 import  {addTheCart} from '../apiUser/PublicServices';
@@ -30,38 +30,56 @@ export default function FieldsUser() {
     // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
     const existingField = cart.find((item: any) => item.id == field.id);
 
-    if (!existingField) {
-      // Nếu chưa tồn tại, thêm sản phẩm vào giỏ hàng
-      const updatedField = {
-        ...field,
-        timeSlots: selectedStartTime, // Chỉ giữ lại timeSlot được chọn
-        date: selectedDate, // Thêm ngày từ selectedDate
-        duration: selectedDuration,
-      };
-     
-      const accessToken = sessionStorage.getItem('accessToken'); // Hoặc localStorage nếu bạn lưu ở đó
-      if (accessToken) {
-      try {
-        const userId = sessionStorage.getItem('userId'); // Lấy userId từ sessionStorage
-        if (!userId) {
-          throw new Error('User ID is missing in session.');
-        } 
-        const reponse=   await addTheCart(userId, updatedField);
-        console.log(reponse);
-        const responseCart = await getListCart(parseInt(userId, 10));
-        
-      }catch (error) {
-        message.error('Failed to add cart to server.');
-      }
-    }else {
-      cart.push(updatedField);
-      localStorage.setItem('cart', JSON.stringify(cart)); // Lưu lại vào localStorage
-      const cartCount = cart.length;
-      localStorage.setItem('cartCount', cartCount.toString());
-      setCartCount(cartCount); // Gọi trực tiếp hàm cập nhật state trong cùng tab
-      initializeCartCount(setCartCount); // Cập nhật cartCount trong localStorage
-      message.success('Added to cart successfully!');
-      } 
+        if (!existingField) {
+          // Nếu chưa tồn tại, thêm sản phẩm vào giỏ hàng
+          const updatedField = {
+            ...field,
+            timeSlots: selectedStartTime, // Chỉ giữ lại timeSlot được chọn
+            date: selectedDate, // Thêm ngày từ selectedDate
+            duration: selectedDuration,
+          };
+          console.log('Updated Field:', updatedField);
+          const accessToken = sessionStorage.getItem('accessToken'); // Hoặc localStorage nếu bạn lưu ở đó
+          if (accessToken) {
+                    try {
+                      const userId = sessionStorage.getItem('userid'); // Lấy userId từ sessionStorage
+                      if (!userId) {
+                        throw new Error('User ID is missing in session.');
+                      } 
+                      console.log(userId,updatedField);
+                      try {
+                          const response = await addTheCart(userId, updatedField);
+                          if (response.data.code === 200) {
+                            console.log(response);
+                            try {
+                              const responseCart = await getListCart(parseInt(userId, 10));
+                              console.log(responseCart);
+                              message.success('Successfully added to cart!'); 
+                            } catch (error) {
+                              message.error('Failed to update cart list.');
+                            }
+                          } else {
+                            message.error('This field is already in the cart!');
+                          }
+                        } catch (error) {
+                        
+                          message.error('This field is already in the cart!');
+                        }
+                    
+                        //  localStorage.setItem('cartCount', responseCart.data.toString());
+                          }catch (error) {
+                            message.error('Failed to add cart to server.');
+                          }
+          }else {
+           
+              const isAdded = handleaddToCart(updatedField, setCartCount); // Gọi hàm và nhận kết quả trả về
+              if (isAdded) {
+                message.success('Added to cart successfully!');
+              } else {
+                message.error('This item is already in the cart!');
+              }
+           
+          } 
     } else {
        message.error('This field is already in the cart!');
     }
@@ -158,190 +176,7 @@ export default function FieldsUser() {
     console.error("Error checking available fields:", error);
   }
 };
-  // Sample data for fields
-  // const fields = [
-  //   {
-  //     id: '1',
-  //     name: 'Green Valley Stadium',
-  //     location: 'Downtown, City Center',
-  //     rating: 4.8,
-  //     pricePerHour: 120,
-  //     image: 'https://images.unsplash.com/photo-1521731978332-9e9e714bdd20?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking', 'Spectator Area'],
-  //     availability: 'High',
-  //     size: 'Standard (11-a-side)',
-  //     timeSlots: [
-  //       { time: '13:00', available: true },
-  //       { time: '13:30', available: true },
-  //       { time: '14:00', available: true },
-  //       { time: '14:30', available: true },
-  //       { time: '15:00', available: true },
-  //       { time: '15:30', available: true },
-  //       { time: '16:00', available: true },
-  //       { time: '16:30', available: false },
-  //       { time: '17:00', available: false },
-  //       { time: '17:30', available: true },
-  //       { time: '18:00', available: true },
-  //       { time: '18:30', available: true },
-  //       { time: '19:00', available: true },
-  //       { time: '19:30', available: true },
-  //       { time: '20:00', available: true },
-  //       { time: '20:30', available: true },
-  //       { time: '21:00', available: true },
-  //     ]
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'Urban Soccer Arena',
-  //     location: 'Westside, Sports District',
-  //     rating: 4.5,
-  //     pricePerHour: 95,
-  //     image: 'https://images.unsplash.com/photo-1518604666860-9ed391f76460?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking'],
-  //     availability: 'Medium',
-  //     size: '7-a-side',
-  //     timeSlots: [
-  //       { time: '13:00', available: false },
-  //       { time: '13:30', available: false },
-  //       { time: '14:00', available: false },
-  //       { time: '14:30', available: true },
-  //       { time: '15:00', available: true },
-  //       { time: '15:30', available: true },
-  //       { time: '16:00', available: true },
-  //       { time: '16:30', available: true },
-  //       { time: '17:00', available: true },
-  //       { time: '17:30', available: true },
-  //       { time: '18:00', available: true },
-  //       { time: '18:30', available: true },
-  //       { time: '19:00', available: false },
-  //       { time: '19:30', available: false },
-  //       { time: '20:00', available: false },
-  //       { time: '20:30', available: true },
-  //       { time: '21:00', available: true },
-  //     ]
-  //   },
-  //   {
-  //     id: '3',
-  //     name: 'Riverside Football Complex',
-  //     location: 'Eastside, River View',
-  //     rating: 4.9,
-  //     pricePerHour: 150,
-  //     image: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking', 'Spectator Area', 'Cafe', 'Pro Equipment'],
-  //     availability: 'Low',
-  //     size: 'Standard (11-a-side)',
-  //     timeSlots: [
-  //       { time: '13:00', available: false },
-  //       { time: '13:30', available: false },
-  //       { time: '14:00', available: false },
-  //       { time: '14:30', available: false },
-  //       { time: '15:00', available: false },
-  //       { time: '15:30', available: false },
-  //       { time: '16:00', available: true },
-  //       { time: '16:30', available: true },
-  //       { time: '17:00', available: true },
-  //       { time: '17:30', available: false },
-  //       { time: '18:00', available: false },
-  //       { time: '18:30', available: false },
-  //       { time: '19:00', available: false },
-  //       { time: '19:30', available: true },
-  //       { time: '20:00', available: true },
-  //       { time: '20:30', available: true },
-  //       { time: '21:00', available: true },
-  //     ]
-  //   },
-  //   {
-  //     id: '4',
-  //     name: 'Elite Sports Center',
-  //     location: 'Northside, Elite District',
-  //     rating: 5.0,
-  //     pricePerHour: 200,
-  //     image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1293&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking', 'Spectator Area', 'Cafe', 'Pro Equipment', 'Personal Trainer', 'VIP Lounge'],
-  //     availability: 'Medium',
-  //     size: 'Standard (11-a-side)',
-  //     timeSlots: [
-  //       { time: '13:00', available: true },
-  //       { time: '13:30', available: true },
-  //       { time: '14:00', available: true },
-  //       { time: '14:30', available: true },
-  //       { time: '15:00', available: false },
-  //       { time: '15:30', available: false },
-  //       { time: '16:00', available: false },
-  //       { time: '16:30', available: false },
-  //       { time: '17:00', available: true },
-  //       { time: '17:30', available: true },
-  //       { time: '18:00', available: true },
-  //       { time: '18:30', available: true },
-  //       { time: '19:00', available: true },
-  //       { time: '19:30', available: false },
-  //       { time: '20:00', available: false },
-  //       { time: '20:30', available: true },
-  //       { time: '21:00', available: true },
-  //     ]
-  //   },
-  //   {
-  //     id: '5',
-  //     name: 'Community Sports Hub',
-  //     location: 'Southside, Community Area',
-  //     rating: 4.2,
-  //     pricePerHour: 75,
-  //     image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking'],
-  //     availability: 'High',
-  //     size: '5-a-side',
-  //     timeSlots: [
-  //       { time: '13:00', available: true },
-  //       { time: '13:30', available: true },
-  //       { time: '14:00', available: true },
-  //       { time: '14:30', available: true },
-  //       { time: '15:00', available: true },
-  //       { time: '15:30', available: true },
-  //       { time: '16:00', available: true },
-  //       { time: '16:30', available: true },
-  //       { time: '17:00', available: true },
-  //       { time: '17:30', available: true },
-  //       { time: '18:00', available: false },
-  //       { time: '18:30', available: false },
-  //       { time: '19:00', available: true },
-  //       { time: '19:30', available: true },
-  //       { time: '20:00', available: true },
-  //       { time: '20:30', available: true },
-  //       { time: '21:00', available: true },
-  //     ]
-  //   },
-  //   {
-  //     id: '6',
-  //     name: 'Premier Football Academy',
-  //     location: 'Central District',
-  //     rating: 4.7,
-  //     pricePerHour: 180,
-  //     image: 'https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1173&q=80',
-  //     features: ['Floodlights', 'Changing Rooms', 'Parking', 'Spectator Area', 'Cafe', 'Pro Equipment', 'Personal Trainer'],
-  //     availability: 'Medium',
-  //     size: 'Standard (11-a-side)',
-  //     timeSlots: [
-  //       { time: '13:00', available: false },
-  //       { time: '13:30', available: false },
-  //       { time: '14:00', available: true },
-  //       { time: '14:30', available: true },
-  //       { time: '15:00', available: true },
-  //       { time: '15:30', available: true },
-  //       { time: '16:00', available: false },
-  //       { time: '16:30', available: false },
-  //       { time: '17:00', available: false },
-  //       { time: '17:30', available: true },
-  //       { time: '18:00', available: true },
-  //       { time: '18:30', available: true },
-  //       { time: '19:00', available: true },
-  //       { time: '19:30', available: true },
-  //       { time: '20:00', available: true },
-  //       { time: '20:30', available: false },
-  //       { time: '21:00', available: false },
-  //     ]
-  //   }
-  // ]
-  
+
   // Filter options
   const filterOptions = ['All Fields', 'Available Now', 'Premium', 'Standard Size', '5-a-side', '7-a-side']
   
@@ -409,11 +244,10 @@ export default function FieldsUser() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: playfairFont }}>
-              Discover Premium Football Fields
+              Khám Phá Sân Bóng Đá Cao Cấp
             </h1>
             <p className="text-green-100 text-lg mb-8">
-              Book the perfect pitch for your game with our curated selection of elite venues
-            </p>
+              Đặt sân hoàn hảo cho trận đấu của bạn với danh sách địa điểm chất lượng hàng đầu do chúng tôi tuyển chọn. </p>
           </div>
         </div>
       </div>
@@ -423,13 +257,13 @@ export default function FieldsUser() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6" style={{ fontFamily: playfairFont }}>
-              Select Your Preferred Time
+              Chọn Thời Gian Mong Muốn
             </h2> 
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Date Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày</label>
                 <input
                   type="date"
                   value={selectedDate}
@@ -443,7 +277,7 @@ export default function FieldsUser() {
               
               {/* Start Time Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Giờ Bắt Đầu</label>
                 <select
                   value={selectedStartTime}
                    onChange={(e) => {
@@ -460,7 +294,7 @@ export default function FieldsUser() {
               
               {/* Duration Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Thời Lượng</label>
                 <div className="relative">
                   <select
                     value={selectedDuration}
@@ -487,7 +321,7 @@ export default function FieldsUser() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium">Your booking time:</span>
+                  <span className="font-medium">Thời Gian Đặt Sân Của Bạn:</span>
                 </div>
                 <div className="text-green-800 font-semibold">
                   {selectedStartTime} - {endTime} ({selectedDuration === 0.5 ? '30 minutes' : selectedDuration === 1 ? '1 hour' : `${selectedDuration} hours`})
@@ -879,7 +713,7 @@ export default function FieldsUser() {
                           </div>
                         </div>
                         <Components.ButtonUser variant="primary">
-                          Add to CartAdd to Cart
+                          Add to Cart
                         </Components.ButtonUser>
                       </div>
                     </div>

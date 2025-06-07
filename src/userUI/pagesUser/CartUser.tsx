@@ -3,41 +3,304 @@ import { useGoogleFont } from '../fonts/fonts'
 import Components from "../componentUser"
 import '../fonts/indexUser.css';
 import React, { useEffect, useState } from 'react';
+import { getListCart } from '../apiUser/PublicServices';
+import { useNavigate } from 'react-router-dom';
+import { Modal } from 'antd';
+import { changeListCartStatus,checkAvailability,removeCart,addListPayment } from '../apiUser/PublicServices';
+import { message } from 'antd';
+import Cookies from 'js-cookie';
 
 export default function CartUser() {
-  const fontFamily = useGoogleFont('Inter')
+  const fontFamily = useGoogleFont('Inter');
   const [cartItems, setCartItems] = useState([]);
-
-  // Lấy dữ liệu từ localStorage khi component được render
-  useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
-   
-    if (storedCart) {
-       const parsedCart = JSON.parse(storedCart).map((item) => ({
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false); // Trạng thái hiển thị modal chỉnh sửa
+  const [editingItem, setEditingItem] = useState(null); // Thông tin mục đang chỉnh sửa
+  const navigate = useNavigate();
+  // Lấy dữ liệu từ localStorage hoặc từ API khi component được render
+  
+  const currentUser = sessionStorage.getItem("user");
+  const userId = sessionStorage.getItem('userid');
+  const handleCheckout = async () => {
+  try {
+    if (currentUser === 'true' && userId) {
+      // Gọi API để lấy danh sách giỏ hàng từ backend
+      const response = await getListCart(parseInt(userId, 10));
+      const cartData = response.data.data.map((item: any) => ({
         id: item.id,
-        fieldId: item.id, // Nếu cần ánh xạ `id` thành `fieldId`
-        fieldName: item.name, // Ánh xạ `name` thành `fieldName`
+        fieldId: item.id,
+        fieldName: item.name,
         location: item.location,
-        date: item.date , // Nếu không có `date`, đặt giá trị mặc định
-        timeSlot: item.timeSlots , // Nếu không có `timeSlot`, đặt giá trị mặc định
-        hours: item.duration , // Nếu không có `hours`, đặt giá trị mặc định là 1
+        date: item.date,
+        timeSlot: item.timeSlots,
+        hours: item.duration,
+        paymentCode: item.paymentCode,
         pricePerHour: item.pricePerHour,
         image: item.image,
       }));
+      // Kiểm tra tính hợp lệ của ngày
+     const invalidItems = cartData.filter((item) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Đặt thời gian của ngày hôm nay về 00:00:00 để so sánh chính xác
+      const itemDate = new Date(item.date);
+      itemDate.setHours(0, 0, 0, 0); // Đặt thời gian của ngày item về 00:00:00 để so sánh chính xác
+
+      // Nếu ngày nhỏ hơn hôm nay, không hợp lệ
+      if (itemDate < today) {
+        return true;
+      }
+
+      // Nếu ngày là hôm nay, kiểm tra timeSlot
+      if (itemDate.getTime() === today.getTime()) {
+        const currentTime = new Date();
+        const [hour, minute] = item.timeSlot.split(':').map(Number); // Chuyển timeSlot thành giờ và phút
+        const itemTime = new Date();
+        itemTime.setHours(hour, minute, 0, 0); // Đặt giờ và phút của timeSlot
+
+        // Nếu timeSlot nhỏ hơn thời gian hiện tại, không hợp lệ
+        if (itemTime <= currentTime) {
+          return true;
+        }
+      }
+
+      // Nếu ngày lớn hơn hôm nay, hợp lệ
+      return false;
+    });
+
+      if (invalidItems.length > 0) {
+        // Hiển thị modal nếu có mục không hợp lệ
+        Modal.warning({
+          title: 'Invalid Date Detected',
+          content: 'Some items in your cart have invalid dates. Please update them before proceeding.',
+          okText: 'OK',
+        });
+      } else {
+        // Nếu tất cả hợp lệ, tiếp tục xử lý checkout
+        setCartItems(cartData);
+        message.success('Proceeding to checkout...');
+        // Thực hiện các bước tiếp theo, ví dụ: chuyển hướng đến trang thanh toán
+        console.log('Cart data:', cartData);
+        const paymentData = cartData.map((item: any) => {
+        // Kết hợp date và timeSlot để tạo bookingDate
+        const bookingDate = `${item.date}T${item.timeSlot}:00.000Z`;
+
+        // Tính toán timeEnd dựa trên bookingDate và hours
+        const [hour, minute] = item.timeSlot.split(':').map(Number); // Chuyển timeSlot thành giờ và phút
+        const formattedMinute = minute.toString().padStart(2, '0');
+
+        // Tính toán timeEnd dựa trên bookingDate và hours
+        const timeEnd = `${item.date}T${hour + item.hours}:${formattedMinute}:00.000Z`;
+
+
+        return {
+          userId: parseInt(userId, 10),
+          voucherCode: "GLOBAL0", // Mã giảm giá (có thể thay đổi tùy theo logic của bạn)
+          fieldId: item.fieldId,
+          discountAmount: 0, // Giảm giá (có thể thay đổi tùy theo logic của bạn)
+          finalPrice: item.pricePerHour * item.hours,
+          paidAt: new Date().toISOString(),
+          paymentMethod: "VNPAY", // Phương thức thanh toán
+          status: 1, // Trạng thái thanh toán (1: đã thanh toán)
+          bookingDate, // Kết hợp ngày và thời gian
+          timeEnd, // Thời gian kết thúc
+          paymentCode: "",
+          totalFinalAmount: cartData.reduce((total, item) => total + item.pricePerHour * item.hours, 0),
+        };
+      });
+        console.log('Payment data:', paymentData);
+        // Gửi dữ liệu thanh toán đến backend
+
+        const paymentResponse = await addListPayment(paymentData);
+        console.log('Payment response:', paymentResponse);
+        if (paymentResponse.data.code === 200) {
+          message.success('Payment processed successfully!');
+          const paymentCode = paymentResponse.data.data;
+          Cookies.set('paymentCode', paymentCode, { secure: true, sameSite: 'Strict' }); // Lưu vào cookie
     
-      setCartItems(parsedCart);
+          navigate('/checkout');
+        }else if(paymentResponse.data.code === 204) {
+          message.error(`${paymentResponse.data.message}`);
+        }
+      }
+    } else {
+      message.error('You must be logged in to proceed to checkout.');
+    }
+  } catch (error) {
+        // Xử lý lỗi không có phản hồi từ server
+        console.error('Failed to fetch cart items:', error);
+        message.error('An unexpected error occurred. Please try again.');
+      
+  }
+};
+
+const handleEdit = (id: number) => {
+ const itemToEdit = cartItems.find((item) => item.id === id);
+  setEditingItem(itemToEdit); // Lưu thông tin mục đang chỉnh sửa
+  setIsEditModalVisible(true); // Hiển thị modal
+};
+
+
+const handleRemove = async ( fieldId: number) => {
+  Modal.confirm({
+    title: 'Are you sure you want to remove this item?',
+    content: 'This action cannot be undone.',
+    okText: 'Yes, Remove',
+    cancelText: 'Cancel',
+    onOk: async () => {
+      try {
+        // Lọc bỏ mục khỏi giỏ hàng
+        const updatedCart = cartItems.filter((item) => item.fieldId !== fieldId);
+        setCartItems(updatedCart); // Cập nhật giỏ hàng
+
+        // Gọi API để xóa mục khỏi backend
+        const response = await removeCart(parseInt(userId,10), fieldId);
+        if (response.status === 200) {
+          message.success('Item removed from cart successfully!');
+        }
+      } catch (error) {
+        console.error('Error removing item from cart:', error);
+        message.error('An error occurred. Please try again.');
+      }
+    },
+    onCancel: () => {
+      console.log('Remove action cancelled.');
+    },
+  });
+};
+  useEffect(() => {
+    if (currentUser === 'true' && userId) {
+      // Gọi API để lấy danh sách giỏ hàng từ backend
+      getListCart(parseInt(userId, 10))
+        .then((response) => {
+          const cartData = response.data.data.map((item: any) => ({
+            id: item.id,
+            fieldId: item.id,
+            fieldName: item.name,
+            location: item.location,
+            date: item.date,
+            timeSlot: item.timeSlots,
+            hours: item.duration,
+            pricePerHour: item.pricePerHour,
+            image: item.image,
+          }));
+          setCartItems(cartData);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch cart items:', error);
+        });
+    } else {
+      // Lấy dữ liệu từ localStorage nếu không có currentUser
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        const parsedCart = JSON.parse(storedCart).map((item: any) => ({
+          id: item.id,
+          fieldId: item.id,
+          fieldName: item.name,
+          location: item.location,
+          date: item.date,
+          timeSlot: item.timeSlots,
+          hours: item.duration,
+          pricePerHour: item.pricePerHour,
+          image: item.image,
+        }));
+        setCartItems(parsedCart);
+      }
     }
   }, []);
+  
+  const handleCheckAvailability = async () => {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Đặt thời gian của ngày hôm nay về 00:00:00 để so sánh chính xác
+        const selectedDate = new Date(editingItem.date);
+        selectedDate.setHours(0, 0, 0, 0); // Đặt thời gian của ngày được chọn về 00:00:00 để so sánh chính xác
 
+        if (selectedDate < today) {
+          message.error("The selected date must be today or later.");
+          return; // Dừng xử lý nếu ngày không hợp lệ
+        }
+        // Nếu ngày là hôm nay, kiểm tra timeSlot
+        if (selectedDate.getTime() === today.getTime()) {
+          const currentTime = new Date();
+          const [hour, minute] = editingItem.timeSlot.split(':').map(Number); // Chuyển timeSlot thành giờ và phút
+          const selectedTime = new Date();
+          selectedTime.setHours(hour, minute, 0, 0); // Đặt giờ và phút của timeSlot
+
+          if (selectedTime <= currentTime) {
+            message.error("The selected time slot must be later than the current time.");
+            return; // Dừng xử lý nếu timeSlot không hợp lệ
+          }
+        }
+        // Gửi thông tin đến backend để kiểm tra tính khả dụng
+        const response = await checkAvailability({
+          userId: parseInt(userId, 10), 
+          fieldId: editingItem.fieldId,
+          date: editingItem.date,
+          timeSlot: editingItem.timeSlot,
+          duration: editingItem.hours,
+        });
+
+        if (response.data.code === 200) {
+          // Nếu sân khả dụng, cập nhật giỏ hàng
+          const updatedCart = cartItems.map((item) =>
+            item.id === editingItem.id ? editingItem : item
+          );
+          setCartItems(updatedCart);
+          setIsEditModalVisible(false);
+          message.success('Booking updated successfully!');
+        }else{
+          // Nếu sân không khả dụng, hiển thị thông báo lỗi
+          message.error("The selected time slot is not available. Please choose another.");
+        }
+      } catch (error) {
+          if (error.response && error.response.data) {
+          if (error.response.data.errorMessage === "Time slot is available") {
+            // Nếu time slot khả dụng
+            message.success("Time slot is available!");
+          } else {
+            // Nếu time slot không khả dụng
+            message.error( "Invalid time slot. Please choose another.");
+          }
+        } else {
+          // Xử lý lỗi không có phản hồi từ server
+          message.error("An unexpected error occurred. Please try again!");
+        }
+      }
+    };
   const clearCart = () => {
-    
-    localStorage.removeItem('cart');
-    
-    setCartItems([]);
+    if (currentUser === 'true') {
+          Modal.confirm({
+          title: 'Do you want to clear the cart?',
+          content: 'This action will remove all items from your cart.',
+          okText: 'Yes',
+          cancelText: 'No',
+          onOk: async () => {
+            try {
+              if (userId) {
+                // Gọi API để cập nhật trạng thái giỏ hàng
+                await changeListCartStatus(parseInt(userId, 10)); // 0 là trạng thái giỏ hàng đã xóa
+              }
+              localStorage.removeItem('cart'); // Xóa giỏ hàng khỏi localStorage
+              setCartItems([]); // Cập nhật state giỏ hàng
+              message.success('Cart cleared successfully!');
+            } catch (error) {
+              console.error('Failed to clear cart:', error);
+              message.error('Failed to clear cart. Please try again.');
+            }
+          },
+          onCancel: () => {
+            console.log('Clear cart action cancelled.');
+          },
+        });
+    } else {
+      // Nếu không phải currentUser, chỉ xóa khỏi localStorage
+      localStorage.removeItem('cart');
+      setCartItems([]);
+    }
   };
+
   // Calculate subtotal
   const subtotal = cartItems.reduce((total, item) => total + (item.pricePerHour * item.hours), 0)
-  const tax = subtotal * 0.08 // 8% tax
+  const tax = subtotal * 0.05 // 8% tax
   const total = subtotal + tax
   
   return (
@@ -123,12 +386,16 @@ export default function CartUser() {
                               {item.pricePerHour * item.hours} VNĐ
                             </div>
                             <div className="flex space-x-2">
-                              <button className="text-gray-500 hover:text-gray-700 cursor-pointer">
+                              <button className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                              onClick={() => handleEdit(item.id)}
+                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
                               </button>
-                              <button className="text-red-500 hover:text-red-700 cursor-pointer">
+                              <button className="text-red-500 hover:text-red-700 cursor-pointer"
+                               onClick={() => handleRemove(item.id)}
+                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -142,7 +409,9 @@ export default function CartUser() {
                   
                   {/* Cart Actions */}
                   <div className="p-6 bg-gray-50 flex flex-wrap justify-between items-center">
-                    <button className="text-green-600 font-medium flex items-center cursor-pointer">
+                    <button className="text-green-600 font-medium flex items-center cursor-pointer"
+                      onClick={() => navigate('/fields-user')}
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
@@ -191,13 +460,13 @@ export default function CartUser() {
                       <span className="text-gray-800 font-medium">{subtotal.toFixed(2)}VNĐ</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tax (8%)</span>
+                      <span className="text-gray-600">Tax (5%)</span>
                       <span className="text-gray-800 font-medium">{tax.toFixed(2)}VNĐ</span>
                     </div>
                     <div className="pt-4 border-t border-gray-200"> 
                       <div className="flex justify-between">
                         <span className="text-lg font-bold text-gray-800">Total</span>
-                        <span className="text-lg font-bold text-green-600">{total.toFixed(2)}$</span>
+                        <span className="text-lg font-bold text-green-600">{total.toFixed(2)}VNĐ</span>
                       </div>
                     </div>
                   </div>
@@ -226,6 +495,7 @@ export default function CartUser() {
                       variant="primary"
                       size="lg"
                       fullWidth
+                       onClick={handleCheckout}
                     >
                       Proceed to Checkout
                     </Components.ButtonUser>
@@ -256,6 +526,71 @@ export default function CartUser() {
       
       {/* Footer */}
       <Components.FooterUser />
+
+      {/* Edit Booking Modal */}
+      <Modal
+        title="Edit Booking"
+        visible={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)} // Đóng modal
+        onOk={handleCheckAvailability} 
+      >
+        {editingItem && (
+          <div className="space-y-4">
+            {/* Chọn ngày */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input
+                type="date"
+                value={editingItem.date}
+                onChange={(e) =>
+                  setEditingItem({ ...editingItem, date: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Chọn khung thời gian */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Time Slot</label>
+              <select
+                value={editingItem.timeSlot}
+                onChange={(e) =>
+                  setEditingItem({ ...editingItem, timeSlot: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {Array.from({ length: 36 }, (_, i) => {
+                  const hour = Math.floor(i / 2) + 6;
+                  const minute = i % 2 === 0 ? '00' : '30';
+                  return (
+                    <option key={i} value={`${hour}:${minute}`}>
+                      {`${hour}:${minute}`}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Chọn thời lượng */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Duration (hours)</label>
+              <select
+                value={editingItem.hours}
+                onChange={(e) =>
+                  setEditingItem({ ...editingItem, hours: parseFloat(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {Array.from({ length: 9 }, (_, i) => (i + 2) / 2).map((duration) => (
+                  <option key={duration} value={duration}>
+                    {duration} hour{duration > 1 ? 's' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

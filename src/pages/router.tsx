@@ -1,7 +1,7 @@
 import { createBrowserRouter, Link, Navigate } from 'react-router-dom';
 import { RootLayout } from './RootLayout.tsx';
 import { Login } from './Login.tsx';
-import { Dashboard } from './Dashboard.tsx';
+
 import { NotFound } from './NotFound.tsx';
 import { Space } from 'antd';
 
@@ -27,7 +27,10 @@ import AccountUser from '../userUI/pagesUser/AccountUser.tsx';
 import Voucher from './Voucher.tsx';
 import RegisterForm from './registerForm.tsx';
 import ManagerAccount from '../components/ManageAccount.tsx';
+import Checkout from '../userUI/pagesUser/Checkout.tsx';
+
 const Categories = lazy(() => import('./Categories.tsx'));
+const Dashboard = lazy(() => import('./Dashboard.tsx'));
 const Vendors = lazy(() => import('./Vendors.tsx'));
 // const Admins = lazy(() => import('./Admins.tsx'));
 const Products = lazy(() => import('./Products.tsx'));
@@ -43,12 +46,19 @@ export const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     handle: {
-      crumb: () => <Link to="/user-home"><Space><DashboardOutlined />Dashboard</Space></Link>,
+      crumb: () => <Link to="/Dashboard"><Space><DashboardOutlined />Dashboard</Space></Link>,
     },
     children: [
       {
         path: '/',
         element: <Navigate to="/user-home" replace />, // Chuyển hướng mặc định đến /user-home
+      },
+      {
+        path: 'Dashboard',
+        element: <Dashboard />,
+        handle: {
+          crumb: () => <Link to="/Dashboard"><Space><DashboardOutlined />Dashboard</Space></Link>,
+        },
       },
       {
         path: 'sales',
@@ -170,6 +180,12 @@ export const router = createBrowserRouter([
     path: '/account-user',
     element: <AccountUser />,
   },
+  {
+    path: '/checkout',
+    element: <Checkout />,
+  },
+  
+
   // {
   //   path: '/forgot-password',
   //   element: <ForgotPassword />,
@@ -182,6 +198,6 @@ export const router = createBrowserRouter([
     path:'/cart-user',
     element: <CartUser />,
   }
-
+ 
    
 ]);

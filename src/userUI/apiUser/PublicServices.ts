@@ -48,27 +48,35 @@ export const addListCart = (payload: {
 
 
 export const addTheCart = (userId: string, cart: { 
-      id: string; 
-      name: string; 
-      location: string; 
-      rating: number; 
-      features: string[]; 
-      availability: string; 
-      timeSlots: string; 
-      pricePerHour: number; 
-      image: string; 
-      date: string; 
-      duration: number; 
-      }) => {
-      return ApiClient.post(`/api/Customer/addTheCart?userId=${userId}`, {
-         fieldId: parseInt(cart.id), // Chuyển đổi id từ string sang number
-         bookingDate: `${cart.date}T${cart.timeSlots}:00.000Z`, // Kết hợp date và timeSlots
-         timeEnd: new Date(
-            new Date(`${cart.date}T${cart.timeSlots}:00.000Z`).getTime() +
-            cart.duration * 60 * 1000 // Tính toán thời gian kết thúc
-         ).toISOString(),
-         status: 0, // Đặt mặc định là 0
-      });
+  id: string; 
+  name: string; 
+  location: string; 
+  rating: number; 
+  features: string[]; 
+  availability: string; 
+  timeSlots: string; 
+  pricePerHour: number; 
+  image: string; 
+  date: string; 
+  duration: number; 
+}) => {
+  // Định dạng payload
+  const payload = {
+    id: cart.id,
+    name: cart.name,
+    location: cart.location,
+    rating: cart.rating,
+    features: cart.features,
+    availability: cart.availability,
+    timeSlots: cart.timeSlots,
+    pricePerHour: cart.pricePerHour,
+    image: cart.image,
+    date: cart.date,
+    duration: cart.duration,
+  };
+
+  // Gửi payload trực tiếp
+  return ApiClient.post(`/api/Customer/addTheCart?userId=${userId}`, payload);
 };
 
 export const getListCart = (userId: number) => {
@@ -95,4 +103,91 @@ export const registerSimple = (payload: {
   phoneNumber: string; 
 }) => {
   return ApiClient.post('/api/Auth/register-simple', payload);
+};
+
+
+export const changeListCartStatus = (userId: number) => {
+  return ApiClient.put(`/api/Customer/changeListCartStatus?userId=${userId}`);
+};
+
+export const checkAvailability = (payload: {
+  userId: number;
+  fieldId: number;
+  date: string;
+  timeSlot: string;
+  duration: number;
+}) => {
+  return ApiClient.post('/api/Customer/check-availability-Cart', payload);
+};
+
+export const removeCart = (userId: number, fieldId: number) => {
+  return ApiClient.delete(`/api/Customer/removeCart?userId=${userId}&fieldId=${fieldId}`);
+};
+
+
+export const addListPayment = (payload: {
+  userId: number;
+  voucherCode: string;
+  fieldId: number;
+  discountAmount: number;
+  finalPrice: number;
+  paidAt: string;
+  paymentMethod: string;
+  status: number;
+  bookingDate: string;
+  timeEnd: string;
+  paymentCode: string;
+  totalFinalAmount: number;
+}[]) => {
+  return ApiClient.post('/api/Payment/addMultiPayment', payload);
+};
+
+
+export const getPaymentSummary = (paymentCode: string, userId: number) => {
+  return ApiClient.get(`/api/Payment/payment-summary?paymentCode=${paymentCode}&userId=${userId}`);
+};
+
+export const getAccountDetail = (accessToken: string) => {
+  return ApiClient.get('/api/Auth/viewaccountdetail', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`, // Thêm accessToken vào header
+      Accept: '*/*',
+    },
+  });
+};
+
+export const changeProfile = (payload: {
+      userId: number;
+      fullName: string;
+      phoneNumber: string;
+    }) => {
+    return ApiClient.post('/api/Auth/changeProfile', payload, {
+    });
+};
+
+
+export const changePassword = (payload: {
+    userId: number;
+    oldPassword: string;
+    newPassword: string;
+  }) => {
+    return ApiClient.post('/api/Auth/changePassword', payload, {
+    });
+};
+
+
+export const changeBookingStatus = (payload: {
+  id: string;
+  fieldId: string;
+  status: string;
+  paymentCode: string;
+  statusAfter: string;
+  userId: number;
+}) => {
+  return ApiClient.post('/api/Customer/changeStatusPayment', payload, {
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    },
+  });
 };

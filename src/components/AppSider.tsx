@@ -10,14 +10,11 @@ import {
   ShopOutlined,
   ShoppingCartOutlined,
   SolutionOutlined,
-  UserOutlined,
+
 } from '@ant-design/icons';
 import Sider from 'antd/es/layout/Sider';
 import {memo} from 'react';
-import {useQuery} from "react-query";
-import {ApiClient} from "../api/apiClient.ts";
-import { getMe } from '../userUI/apiUser/PublicServices';
-import {AppUser} from "../types/AppUser.ts";
+
 
 export const siderWidth = 256;
 
@@ -67,50 +64,51 @@ export const AppSider = memo(() => {
         }}
         items={[
           {
-              label: <Link to="/Dashboard">Dashboard</Link>,
+              label: <Link to="/Dashboard">Bảng Điều Khiển</Link>,
               key: '/Dashboard',
               icon: <DashboardOutlined/>,
           },
           {
-            label: <Link to="/sales">Sales</Link>, key: '/sales', icon: <ShoppingCartOutlined/>,
+            label: <Link to="/sales">Doanh Thu</Link>, key: '/sales', icon: <ShoppingCartOutlined/>,
           },
           {
-            label: <Link to="/sales-history">Sales History</Link>, key: '/sales-history', icon: <HistoryOutlined/>,
+            label: <Link to="/sales-history">Lịch Sử Bán Hàng</Link>, key: '/sales-history', icon: <HistoryOutlined/>,
           },
           {
             type: 'divider',
           },
           {
-            label: 'Inventory',
+            label: 'Tồn Kho',
             key: '/inventory',
             icon: <DatabaseOutlined/>,
             children: [
 
               {
-                label: <Link to="/field">Fields</Link>,
+                label: <Link to="/field">Sân Bóng</Link>,
                 key: '/field',
                 icon: <AppstoreOutlined />,
               },
                 {
-                label: <Link to="/voucher">Vouchers</Link>,
+                label: <Link to="/voucher">Mã Giảm Giá</Link>,
                 key: '/voucher',
                 icon: <AppstoreOutlined />,
               },
               {
-                label: <Link to="/products">Products</Link>,
+                label: <Link to="/products">Sản Phẩm</Link>,
                 key: '/products',
                 icon: <DropboxOutlined/>,
               },
-              {
-                label: <Link to="/categories">Categories</Link>,
-                key: '/categories',
-                icon: <AppstoreOutlined/>,
-              },
-              {
-                label: <Link to="/vendors">Vendors</Link>,
-                key: '/vendors',
-                icon: <ShopOutlined/>,
-              }],
+              // {
+              //   label: <Link to="/categories">Danh Mục</Link>,
+              //   key: '/categories',
+              //   icon: <AppstoreOutlined/>,
+              // },
+              // {
+              //   label: <Link to="/vendors">Nhà Cung Cấp</Link>,
+              //   key: '/vendors',
+              //   icon: <ShopOutlined/>,
+              // }
+               ],
           },
           {
             type: 'divider',
@@ -121,7 +119,6 @@ export const AppSider = memo(() => {
             icon: <SolutionOutlined/>,
             style: {display: me ? (me.roles.includes('SuperAdmin') ? '' : 'none') : 'none'}
           },
-          {label: <Link to="/customers">Customers</Link>, key: '/customers', icon: <UserOutlined/>},
           {
             label: <Link to="/manage-account">Manage Account</Link>,
             key: '/manage-account',

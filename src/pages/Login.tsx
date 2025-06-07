@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 import { loginWithGoogle } from '../userUI/apiUser/PublicServices';
 import { addListCart} from '../userUI/apiUser/PublicServices';
+import { Link } from 'react-router-dom';
+
 export const Login = () => {
-  const { login } = useAuth();
+  const { login,fetchUserData } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,12 +24,16 @@ export const Login = () => {
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       setLoading(true);
+      if (!formData.username.trim() || !formData.password.trim()) {
+        message.error('Username and Password cannot be empty.');
+        setLoading(false);
+        return;
+      }
       try {
      
         // Gọi hàm login từ AuthContext
         const reponse = await login(formData.username, formData.password);
         if(reponse){
-            console.log("hiep day ",reponse);
             message.success('Login successful!');
             const roleid = sessionStorage.getItem('roleid');
               if (roleid == '2' || roleid == '1') {
@@ -35,8 +41,6 @@ export const Login = () => {
               } else {
                 navigate('/');
               }
-        }else{
-            message.error('Login fail!');
         }
       } catch (error: any) {
         message.error(error.message || 'Login failed. Please try again.');
@@ -55,12 +59,35 @@ export const Login = () => {
           console.log('Google login failed');
         },  
     });
+
     const handleGoogleLogin = async (accessToken: string) => {
       try {
           const response = await loginWithGoogle(accessToken);
-          console.log('Login successful:', response.data.data);
+
+          if (response.data.code === 200) {
+            // Lưu accessToken vào sessionStorage
+            sessionStorage.setItem('accessToken', response.data.data.accessToken);
+
+            // Gọi hàm fetchUserData để lấy thông tin người dùng
+            const userData = await fetchUserData();
+            if (!userData) {
+               message.success('fetch login with google fail!');
+            }
+
+            // Kiểm tra roleid và chuyển hướng
+            const roleid = sessionStorage.getItem('roleid');
+            if (roleid === '2' || roleid === '1') {
+              navigate('/dashboard');
+            } else {
+              navigate('/');
+            }
+
+            message.success('Login with Google successful!');
+          } else {
+            throw new Error("Google login failed.");
+          }
       } catch (error) {
-          console.error('Error during Google login:', error);
+           message.error('Login with Google failed. Please try again.');
       }
     };
   useEffect(() => {
@@ -80,9 +107,13 @@ export const Login = () => {
           {/* Header */}
           <div className="p-6 sm:p-8">
             <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
-              Welcome Back
+               <Link to="/user-home" className="hover:underline">
+                Chào mừng trở lại
+              </Link>
             </h2>
-            <p className="text-gray-500 text-center mb-8">Sign in to continue</p>
+             
+            
+            <p className="text-gray-500 text-center mb-8">Đăng nhập để tiếp tục</p>
 
             {/* Google Login Button */}
              <button className="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl mb-6 flex items-center justify-center transition-all hover:bg-gray-50 hover:shadow-md group"
@@ -98,7 +129,7 @@ export const Login = () => {
                 />
               </svg>
               <span className="transform transition-transform group-hover:translate-x-1 duration-200">
-                Continue with Google
+                Tiếp tục với Google
               </span>
             </button> 
              
@@ -110,7 +141,7 @@ export const Login = () => {
                   <input
                     type="text"
                     id="username"
-                    placeholder="Username"
+                    placeholder="Email"
                     value={formData.username}
                     onChange={handleChange}
                     className="w-full bg-gray-50 text-gray-800 px-4 py-3 rounded-xl outline-none border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-300 pl-10"
@@ -136,7 +167,7 @@ export const Login = () => {
                   <input
                     type="password"
                     id="password"
-                    placeholder="Password"
+                    placeholder="Mật khẩu"
                     value={formData.password}
                     onChange={handleChange}
                     className="w-full bg-gray-50 text-gray-800 px-4 py-3 rounded-xl outline-none border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-300 pl-10"

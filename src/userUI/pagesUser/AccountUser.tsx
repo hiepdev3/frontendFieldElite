@@ -6,76 +6,133 @@ import '../fonts/indexUser.css';
 import React from "react"
 import {useAuth} from '../../context/AuthContext.tsx';
 import {useQueryClient} from 'react-query';
+import { getAccountDetail, changeProfile , changePassword,changeBookingStatus } from '../apiUser/PublicServices.ts';
+import { useEffect, useState } from 'react';
+import { message } from 'antd';
+
 
 export default function AccountUser() {
   const fontFamily = useGoogleFont('Inter')
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { logout } = useAuth(); // Lấy hàm logout từ AuthContext
-    
-  // Sample user data
-  const user = {
-    id: '12345',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    memberSince: 'January 2022',
-    preferredLocation: 'Downtown'
-  }
-  
-  // Sample booking history
-  const bookings = [
-    {
-      id: 'B001',
-      fieldId: '1',
-      fieldName: 'Green Valley Stadium',
-      location: 'Downtown, City Center',
-      date: '2023-07-28',
-      timeSlot: '18:00 - 20:00',
-      hours: 2,
-      totalPrice: 240,
-      status: 'completed',
-      image: 'https://images.unsplash.com/photo-1521731978332-9e9e714bdd20?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80'
-    },
-    {
-      id: 'B002',
-      fieldId: '3',
-      fieldName: 'Riverside Field',
-      location: 'Eastside, River Park',
-      date: '2023-08-05',
-      timeSlot: '16:00 - 18:00',
-      hours: 2,
-      totalPrice: 160,
-      status: 'completed',
-      image: 'https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1173&q=80'
-    },
-    {
-      id: 'B003',
-      fieldId: '5',
-      fieldName: 'Sunset Arena',
-      location: 'Westside, Beach District',
-      date: '2023-08-15',
-      timeSlot: '18:00 - 20:00',
-      hours: 2,
-      totalPrice: 300,
-      status: 'upcoming',
-      image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1093&q=80'
-    },
-    {
-      id: 'B004',
-      fieldId: '2',
-      fieldName: 'Urban Soccer Arena',
-      location: 'Westside, Sports District',
-      date: '2023-08-22',
-      timeSlot: '19:00 - 21:00',
-      hours: 2,
-      totalPrice: 190,
-      status: 'upcoming',
-      image: 'https://images.unsplash.com/photo-1518604666860-9ed391f76460?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
-    }
-  ]
-  
+  const [bookings, setBookings] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  const userId = sessionStorage.getItem('userid');
+  const [isProfileCollapsed, setIsProfileCollapsed] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('all'); // Mặc định là 'all'
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [user, setUser] = useState({
+      id: '12345',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      phone: '+1 (555) 123-4567',
+      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      memberSince: 'January 2022',
+      preferredLocation: 'Downtown',
+    });
+    useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+          const accessToken = sessionStorage.getItem('accessToken');
+          if (!accessToken) {
+            console.error('Access token not found. Redirecting to login.');
+            navigate('/login'); // Chuyển hướng về trang login nếu không có accessToken
+            return;
+          }
+
+          // Gọi API để lấy thông tin người dùng
+          const userResponse = await getAccountDetail(accessToken);
+         
+         if (userResponse.data.code === 200) {
+           const responseData = userResponse.data.data;
+
+      // Gán dữ liệu vào user
+      const userData = {
+        id: responseData.id || '12345',
+        name: responseData.name || 'John Doe',
+        email: responseData.email || 'john.doe@example.com',
+        phone: responseData.phone || '+1 (555) 123-4567', // Nếu không có, giữ giá trị mặc định
+        avatar:  'https://randomuser.me/api/portraits/men/32.jpg',
+        memberSince:  '2025', // Mặc định
+        preferredLocation:  'Hà Nội', // Mặc định
+      };
+
+      setUser(userData); // Lưu thông tin người dùng vào state
+
+      // Gán dữ liệu vào bookings
+      const bookingData = Array.isArray(responseData.bookings)
+        ? responseData.bookings.map((booking) => ({
+            id: booking.id,
+            fieldId: booking.fieldId,
+            fieldName: booking.fieldName,
+            location: booking.location,
+            date: booking.date,
+            timeSlot: booking.timeSlot,
+            hours: booking.hours,
+            totalPrice: booking.totalPrice,
+            status: booking.status,
+            image: booking.image,
+            paymentCode: booking.paymentCode,
+          }))
+            : []; // Nếu không có bookings, gán mảng rỗng
+
+          setBookings(bookingData); 
+        } else {
+          console.error('Failed to fetch user data:', userResponse.data.message);
+          navigate('/login'); // Chuyển hướng về trang login nếu không lấy được dữ liệu
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        navigate('/login'); // Chuyển hướng về trang login nếu có lỗi
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+
+  const handleChangeStatus = async (booking, statusAfter) => {
+      try {
+          const response = await changeBookingStatus({
+            id: booking.id,
+            fieldId: booking.fieldId,
+            status: booking.status,
+            paymentCode: booking.paymentCode ,
+            statusAfter,
+            userId: parseInt(userId, 10), // Lấy userId từ sessionStorage
+          });
+
+        if (response.data.code === 200) {
+          message.success('Status updated successfully!');
+
+          // Cập nhật trạng thái trực tiếp trong state bookings
+          setBookings((prevBookings) =>
+            prevBookings.map((b) =>
+              b.id === booking.id ? { ...b, status: statusAfter } : b
+            )
+          );
+        } else {
+          message.error('Failed to update status. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error updating status:', error);
+        message.error('An error occurred while updating status.');
+      }
+    };
+
+  const filteredBookings = selectedStatus === 'all'
+  ? bookings
+  : bookings.filter((booking) => booking.status === selectedStatus);
+
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily }}>
       {/* Navbar */}
@@ -92,7 +149,7 @@ export default function AccountUser() {
             <div className="mt-4 md:mt-0">
               <Components.ButtonUser 
                 variant="secondary"
-                href="/index.html?screen=Home"
+                href="/user-home"
               >
                 Back to Home
               </Components.ButtonUser>
@@ -148,12 +205,17 @@ export default function AccountUser() {
                       </svg>
                       Favorite Fields
                     </a>
-                    <a href="#settings" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium cursor-pointer">
+                    <a href="#settings" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault(); // Ngăn chặn hành động mặc định của thẻ <a>
+                            setIsPasswordModalOpen(true);
+                          }}
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      Settings
+                      Change Password
                     </a>
                   </nav>
                 </div>
@@ -177,38 +239,76 @@ export default function AccountUser() {
             {/* Main Content */}
             <div className="w-full lg:w-9/12 px-4">
               {/* Profile Section */}
-              <div id="profile" className="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-800">Profile Information</h2>
-                  <button className="text-green-600 font-medium flex items-center cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+         <div id="profile" className="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">Profile Information</h2>
+              <button
+                className="text-green-600 font-medium flex items-center cursor-pointer"
+                onClick={() => setIsProfileCollapsed(!isProfileCollapsed)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-5 w-5 transform transition-transform ${
+                    isProfileCollapsed ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                {isProfileCollapsed ? 'Expand' : 'Collapse'}
+              </button>
+            </div>
+            {!isProfileCollapsed && (
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Full Name</h3>
+                    <p className="text-gray-800">{user.name}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Email Address</h3>
+                    <p className="text-gray-800">{user.email}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Phone Number</h3>
+                    <p className="text-gray-800">{user.phone}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Preferred Location</h3>
+                    <p className="text-gray-800">{user.preferredLocation}</p>
+                  </div>
+                </div>
+                <div className="mt-4 text-right ">
+                  <button className="text-green-600 hover:text-green-700 flex items-center cursor-pointer"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
                     Edit Profile
                   </button>
                 </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">Full Name</h3>
-                      <p className="text-gray-800">{user.name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">Email Address</h3>
-                      <p className="text-gray-800">{user.email}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">Phone Number</h3>
-                      <p className="text-gray-800">{user.phone}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">Preferred Location</h3>
-                      <p className="text-gray-800">{user.preferredLocation}</p>
-                    </div>
-                  </div>
-                </div>
               </div>
-              
+            )}
+          </div>
               {/* Booking History */}
               <div id="bookings" className="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
                 <div className="p-6 border-b border-gray-200">
@@ -217,23 +317,77 @@ export default function AccountUser() {
                 
                 {/* Booking Tabs */}
                 <div className="flex border-b border-gray-200">
-                  <button className="px-6 py-3 border-b-2 border-green-600 text-green-600 font-medium">
+                  <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'all' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('all');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
                     All Bookings
                   </button>
-                  <button className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
+                   <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'not checked in' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('not checked in');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
+                    Not Checked In
+                  </button>
+                  <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'ongoing' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('ongoing');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
+                    Ongoing
+                  </button>
+                  <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'upcoming' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('upcoming');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
                     Upcoming
                   </button>
-                  <button className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
+                  <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'completed' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('completed');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
                     Completed
                   </button>
-                  <button className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
+                  <button
+                    className={`px-6 py-3 border-b-2 ${
+                      selectedStatus === 'cancelled' ? 'border-green-600 text-green-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => {
+                      setSelectedStatus('cancelled');
+                      setCurrentPage(1); // Reset về trang đầu
+                    }}
+                  >
                     Cancelled
                   </button>
                 </div>
                 
                 {/* Bookings List */}
                 <div className="divide-y divide-gray-200">
-                  {bookings.map((booking) => (
+                  {paginatedBookings.map((booking) => (
                     <div key={booking.id} className="p-6">
                       <div className="flex flex-wrap -mx-4">
                         {/* Field Image */}
@@ -285,22 +439,41 @@ export default function AccountUser() {
                         {/* Price and Actions */}
                         <div className="w-full sm:w-3/12 px-4 flex flex-col items-end justify-between">
                           <div className="text-green-600 font-bold text-lg mb-2">
-                            ${booking.totalPrice}
-                          </div>
+                            {booking.totalPrice} VNĐ
+                          </div>  
                           <div className="flex space-x-2">
+                            {/* Hiển thị nút dựa trên trạng thái booking */}
+                            {booking.status === 'not checked in' && (
+                              <button className="px-3 py-1 bg-yellow-600 text-white text-sm font-medium rounded-full hover:bg-yellow-700 transition-colors cursor-pointer"
+                                onClick={() => handleChangeStatus(booking, 'ongoing')}
+                              >
+                                Check In
+                              </button>
+                            )}
+                            {booking.status === 'cancelled' && (
+                              <button className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors cursor-pointer">
+                                Rebook
+                              </button>
+                            )}
                             {booking.status === 'upcoming' && (
                               <>
-                                <button className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-colors cursor-pointer">
-                                  Reschedule
-                                </button>
-                                <button className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full hover:bg-red-700 transition-colors cursor-pointer">
+                                <button className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full hover:bg-red-700 transition-colors cursor-pointer"
+                                  onClick={() => handleChangeStatus(booking, 'cancelled')}
+                                >
                                   Cancel
                                 </button>
                               </>
                             )}
                             {booking.status === 'completed' && (
                               <button className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors cursor-pointer">
-                                Book Again
+                                Rebook
+                              </button>
+                            )}
+                            {booking.status === 'ongoing' && (
+                              <button className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-colors cursor-pointer"
+                               onClick={() => handleChangeStatus(booking, 'completed')}
+                              >
+                                Checkout
                               </button>
                             )}
                           </div>
@@ -312,22 +485,35 @@ export default function AccountUser() {
                 
                 {/* Pagination */}
                 <div className="p-6 bg-gray-50 flex justify-center">
-                  <nav className="flex items-center">
-                    <button className="px-3 py-1 rounded-l-lg border border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                  <nav className="flex items-center space-x-2">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      className={`px-3 py-1 rounded-l-lg border border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer ${
+                        currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      Previous
                     </button>
-                    <button className="px-3 py-1 border-t border-b border-gray-300 text-green-600 font-medium bg-green-50 cursor-pointer">
-                      1
-                    </button>
-                    <button className="px-3 py-1 border-t border-b border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                      2
-                    </button>
-                    <button className="px-3 py-1 rounded-r-lg border border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
+                    {Array.from({ length: Math.ceil(bookings.length / itemsPerPage) }, (_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPage(index + 1)}
+                        className={`px-3 py-1 border-t border-b border-gray-300 ${
+                          currentPage === index + 1 ? 'text-green-600 bg-green-50 font-medium' : 'text-gray-600 hover:bg-gray-100'
+                        } cursor-pointer`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                    <button
+                      disabled={currentPage === Math.ceil(bookings.length / itemsPerPage)}
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(bookings.length / itemsPerPage)))}
+                      className={`px-3 py-1 rounded-r-lg border border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer ${
+                        currentPage === Math.ceil(bookings.length / itemsPerPage) ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      Next
                     </button>
                   </nav>
                 </div>
@@ -386,6 +572,178 @@ export default function AccountUser() {
       
       {/* Footer */}
       <Components.FooterUser />
+
+      {/* Edit Profile Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Profile</h2>
+            <form
+               onSubmit={async (e) => {
+                e.preventDefault();
+
+                // Kiểm tra định dạng số điện thoại
+                const phoneRegex = /^\+84\d{9}$/;
+                if (!phoneRegex.test(user.phone)) {
+                  message.error('Phone number must be in the format +84 followed by 9 digits.');
+                  return;
+                }
+
+                try {
+                  // Gọi API để cập nhật thông tin
+                  const response = await changeProfile({
+                    userId :  parseInt(userId, 10),
+                    fullName: user.name,
+                    phoneNumber: user.phone,
+                  });
+
+                  if (response.data.code === 200) {
+                    message.success('Profile updated successfully!');
+                    setIsModalOpen(false); // Đóng modal sau khi cập nhật thành công
+                  } else {
+                    message.error('Failed to update profile. Please try again.');
+                  }
+                } catch (error) {
+                  console.error('Error updating profile:', error);
+                  message.error('An error occurred while updating profile.');
+                }
+              }}
+            >
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  defaultValue={user.name}
+                  onChange={(e) => setUser({ ...user, name: e.target.value })}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  defaultValue={user.phone}
+                  onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                />
+              </div>
+          
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    {isPasswordModalOpen && (
+  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Change Password</h2>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+            const form = e.target as HTMLFormElement; // Ép kiểu e.target thành HTMLFormElement
+            const oldPassword = (form.elements.namedItem('oldPassword') as HTMLInputElement)?.value.trim();
+            const newPassword = (form.elements.namedItem('newPassword') as HTMLInputElement)?.value.trim();
+            const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement)?.value.trim();
+
+
+          if (!oldPassword || !newPassword || !confirmPassword) {
+              message.error('All fields are required.');
+              return;
+          }
+          // Kiểm tra độ dài mật khẩu
+          if (newPassword.length < 8 || newPassword.length > 30) {
+            message.error('Password must be between 8 and 30 characters.');
+            return;
+          }
+
+          // Kiểm tra mật khẩu xác nhận
+          if (newPassword !== confirmPassword) {
+            message.error('New password and confirm password do not match.');
+            return;
+          }
+
+          try {
+            // Gọi API để đổi mật khẩu
+            const response = await changePassword({
+              userId: parseInt(userId, 10),
+              oldPassword,
+              newPassword,
+            });
+
+            if (response.data.code === 200) {
+              message.success('Password changed successfully!');
+              setIsPasswordModalOpen(false); // Đóng modal sau khi đổi mật khẩu thành công
+            } else {
+              message.error('Failed to change password. Please try again.');
+            }
+          } catch (error) {
+            console.error('Error changing password:', error);
+            message.error('An error occurred while changing password.');
+          }
+        }}
+      >
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+          <input
+            type="password"
+            name="oldPassword"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <input
+            type="password"
+            name="newPassword"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+            onClick={() => setIsPasswordModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   )
 }

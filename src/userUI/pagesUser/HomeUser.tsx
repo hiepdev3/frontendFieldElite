@@ -114,22 +114,22 @@ export default function HomeUser() {
     {
       id: 1,
       name: "Alex Johnson",
-      role: "Team Captain, FC United",
-      quote: "The quality of fields available on this platform is exceptional. Booking is seamless, and the customer service is top-notch.",
+      role: "Đội trưởng, FC United",
+      quote: "Chất lượng sân bóng trên nền tảng này thật sự tuyệt vời. Việc đặt sân rất dễ dàng và dịch vụ chăm sóc khách hàng cực kỳ chuyên nghiệp.",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg"
     },
     {
       id: 2,
       name: "Sarah Williams",
-      role: "Event Organizer",
-      quote: "We've organized multiple tournaments using fields from this platform. The process is always smooth and the fields are exactly as described.",
+      role: "Nhà tổ chức sự kiện",
+      quote: "Chúng tôi đã tổ chức nhiều giải đấu qua nền tảng này. Quy trình luôn suôn sẻ và sân đúng như mô tả.",
       avatar: "https://randomuser.me/api/portraits/women/44.jpg"
     },
     {
       id: 3,
       name: "Michael Chen",
-      role: "Recreational Player",
-      quote: "As someone who just plays casually with friends, this platform has made it so easy to find and book quality fields in our area.",
+      role: "Người chơi giải trí",
+      quote: "Là người chơi bóng để vui cùng bạn bè, tôi thấy nền tảng này giúp việc tìm và đặt sân chất lượng gần nhà trở nên vô cùng đơn giản.",
       avatar: "https://randomuser.me/api/portraits/men/67.jpg"
     }
   ]
@@ -150,13 +150,13 @@ export default function HomeUser() {
           <div className="flex flex-wrap">
             <div className="w-full lg:w-6/12 px-4">
               <h1 className="text-white text-5xl md:text-6xl font-bold mb-6" style={{ fontFamily: playfairFont }}>
-                Elevate Your Game
+                Nâng Tầm Trò Chơi
               </h1>
               <h2 className="text-green-400 text-2xl md:text-3xl font-light mb-8">
-                Premium Football Fields at Your Fingertips
+                Sân Bóng Đá Cao Cấp Trong Tầm Tay
               </h2>
               <p className="text-gray-200 text-lg mb-10 max-w-lg">
-                Discover and book exceptional football fields for your matches, tournaments, or practice sessions. Experience quality, convenience, and excellence.
+             Khám phá và đặt sân bóng đá chất lượng cho các trận đấu, giải đấu hoặc buổi tập luyện của bạn. Trải nghiệm sự tiện lợi, chất lượng và đẳng cấp.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Components.ButtonUser 
@@ -218,9 +218,9 @@ export default function HomeUser() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Why Choose Us</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Vì Sao Chọn Chúng Tôi</h2>
             <div className="w-24 h-1 bg-green-600 mx-auto mb-6"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto">Experience the difference with our premium football field rental service. We provide exceptional quality, convenience, and value.</p>
+            <p className="text-gray-600 max-w-2xl mx-auto">Trải nghiệm sự khác biệt với dịch vụ cho thuê sân bóng cao cấp – chất lượng, tiện lợi và giá trị vượt trội.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div className="bg-white rounded-2xl p-8 shadow-xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
@@ -229,9 +229,9 @@ export default function HomeUser() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Effortless Booking</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Đặt Sân Siêu Nhanh</h3>
               <p className="text-gray-600">
-                Our streamlined booking process takes just minutes. Select your field, choose your time, and confirm your reservation with ease.
+               Chọn sân – chọn giờ – xác nhận, chỉ trong vài phút!
               </p>
             </div>
             <div className="bg-white rounded-2xl p-8 shadow-xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
@@ -240,10 +240,9 @@ export default function HomeUser() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Premium Quality</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Chất Lượng Đỉnh Cao</h3>
               <p className="text-gray-600">
-                Every field in our collection is meticulously vetted and regularly maintained to ensure exceptional playing conditions.
-              </p>
+                Mỗi sân đều được kiểm định kỹ lưỡng và bảo trì thường xuyên, đảm bảo mặt sân luôn trong tình trạng tốt nhất.</p>
             </div>
             <div className="bg-white rounded-2xl p-8 shadow-xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
               <div className="w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6">
@@ -251,10 +250,9 @@ export default function HomeUser() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Transparent Pricing</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Giá Cả Minh Bạch</h3>
               <p className="text-gray-600">
-                No hidden fees or surprise charges. Our pricing is clear and competitive, with exclusive promotions for regular customers.
-              </p>
+               Không phí ẩn – không phát sinh bất ngờ. Giá rõ ràng, cạnh tranh và ưu đãi đặc biệt cho khách hàng thân thiết.</p>
             </div>
           </div>
         </div>
@@ -265,15 +263,15 @@ export default function HomeUser() {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-between items-end mb-12">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Featured Fields</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Sân Nổi Bật</h2>
               <div className="w-24 h-1 bg-green-600 mb-4"></div>
-              <p className="text-gray-600 max-w-xl">Discover our selection of premium football fields, each offering exceptional facilities and playing conditions.</p>
+              <p className="text-gray-600 max-w-xl">Khám phá danh sách các sân bóng cao cấp với cơ sở vật chất hiện đại và chất lượng thi đấu tuyệt vời.</p>
             </div>
             <Components.ButtonUser 
               variant="outline"
-              href="/index.html?screen=Fields"
+              href="/fields-user"
             >
-              View All Fields
+              Xem Tất Cả Sân
             </Components.ButtonUser>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -292,9 +290,9 @@ export default function HomeUser() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>What Our Customers Say</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Khách Hàng Nói Gì Về Chúng Tôi</h2>
             <div className="w-24 h-1 bg-green-600 mx-auto mb-6"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto">Don't just take our word for it. Here's what players and organizers have to say about our service.</p>
+            <p className="text-gray-600 max-w-2xl mx-auto">Đừng chỉ nghe từ chúng tôi – hãy xem các đội bóng và nhà tổ chức đánh giá thế nào về dịch vụ của chúng tôi.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map(testimonial => (
@@ -325,15 +323,15 @@ export default function HomeUser() {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-between items-end mb-12">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Special Offers</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: playfairFont }}>Ưu Đãi Đặc Biệt</h2>
               <div className="w-24 h-1 bg-green-600 mb-4"></div>
-              <p className="text-gray-600 max-w-xl">Take advantage of our limited-time promotions and exclusive deals to save on your next booking.</p>
+              <p className="text-gray-600 max-w-xl">Tận dụng các chương trình khuyến mãi có thời hạn và ưu đãi độc quyền để tiết kiệm cho lần đặt sân tiếp theo.</p>
             </div>
             <Components.ButtonUser 
               variant="outline"
               href="/promotions-user"
             >
-              View All Offers
+             Xem Tất Cả Ưu Đãi
             </Components.ButtonUser>
           </div>
           <div className="relative">
@@ -361,23 +359,22 @@ export default function HomeUser() {
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold text-white mb-6" style={{ fontFamily: playfairFont }}>Ready to Experience Premium Football Fields?</h2>
+            <h2 className="text-4xl font-bold text-white mb-6" style={{ fontFamily: playfairFont }}>Sẵn Sàng Trải Nghiệm Sân Bóng Đá Cao Cấp?</h2>
             <p className="text-white/90 text-lg mb-10 max-w-2xl mx-auto">
-              Join thousands of satisfied players and teams who have elevated their game with our premium football fields. Book your field today and experience the difference.
-            </p>
+             Hàng ngàn cầu thủ và đội bóng đã nâng tầm trận đấu của họ cùng chúng tôi. Đặt sân ngay hôm nay để cảm nhận sự khác biệt!</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Components.ButtonUser 
                 variant="secondary" 
                 size="lg"
                 href="/fields-user"
               >
-                Book a Field Now
+               Đặt Sân Ngay
               </Components.ButtonUser>
               <Components.ButtonUser 
                 variant="outline" 
                 size="lg"
               >
-                Contact Support
+                Liên Hệ Hỗ Trợ
               </Components.ButtonUser>
             </div>
           </div>

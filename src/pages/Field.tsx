@@ -6,74 +6,12 @@ import { message } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
-import { uploadImage, deleteImage, addField } from '../api/fieldService';
+import { uploadImageToCloudinary, addField } from '../api/fieldService';
 
 // const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 // const userId = currentUser.id;
 
-const columns = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 50, 
-  },
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    width: 150,
-  },
-  {
-    title: 'Type',
-    dataIndex: 'type',
-    key: 'type',
-    width: 120, 
-    // render: (value) => value === 'artificial' ? 'Cỏ nhân tạo' : 'Cỏ tự nhiên',
-  },
-  {
-    title: 'Size',
-    dataIndex: 'size',
-    key: 'size',
-    width: 100,
-    // render: (value) => `${value} người`,
-  },
-  {
-    title: 'Price(per hour)',
-    dataIndex: 'price',
-    key: 'price',
-    width: 150, 
-    // render: (value) => `${value} VNĐ`,
-  },
-  {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-     width: 300,
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    width: 50, 
-    // render: (value) => {
-    //   if (value === 'active') return 'Đang sử dụng';
-    //   if (value === 'maintenance') return 'Bảo trì';
-    //   return 'Ngừng hoạt động';
-    // },
-  },
-  {
-    title: 'Description',
-    dataIndex: 'description',
-    key: 'description',
-  },
-  //  {
-  //   title: 'image',
-  //   dataIndex: 'image',
-  //   key: 'image',
-  //   width: 150, 
-  // },
-];
+
 
 
 export default function Field() {
@@ -90,9 +28,106 @@ export default function Field() {
 
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  
+const columns = [
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    width: 50, 
+  },
+  {
+    title: 'Tên',
+    dataIndex: 'name',
+    key: 'name',
+    width: 150,
+  },
+  {
+    title: 'Loại cỏ',
+    dataIndex: 'type',
+    key: 'type',
+    width: 120, 
+    // render: (value) => value === 'artificial' ? 'Cỏ nhân tạo' : 'Cỏ tự nhiên',
+  },
+  {
+    title: 'Kích thước',
+    dataIndex: 'size',
+    key: 'size',
+    width: 100,
+    // render: (value) => `${value} người`,
+  },
+  {
+    title: 'Giá (theo giờ) VNĐ',
+    dataIndex: 'price',
+    key: 'price',
+    width: 150, 
+    // render: (value) => `${value} VNĐ`,
+  },
+  {
+    title: 'Địa chỉ',
+    dataIndex: 'address',
+    key: 'address',
+     width: 300,
+  },
+  {
+    title: 'Trạng thái',
+    dataIndex: 'status',
+    key: 'status',
+    width: 50, 
+    // render: (value) => {
+    //   if (value === 'active') return 'Đang sử dụng';
+    //   if (value === 'maintenance') return 'Bảo trì';
+    //   return 'Ngừng hoạt động';
+    // },
+  },
+  // {
+  //   title: 'Description',
+  //   dataIndex: 'description',
+  //   key: 'description',
+  // },
+  {
+    title: 'Hình ảnh',
+    dataIndex: 'image',
+    key: 'image',
+    width: 150, 
+    render: (image) => (
+    <img
+        src={image}
+        alt="Field Image"
+        style={{ width: '100px', height: 'auto', borderRadius: '8px' }}
+      />
+    ),
+  },
+  {
+      title: 'Hành động',
+      key: 'action',
+      width: 100,
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            type="link"
+            onClick={() => handleEdit(record)}
+          >
+            Sửa
+          </Button>
+          {/* <Button
+            type="link"
+            danger
+            onClick={() => handleDelete(record.id)}
+          >
+            Delete
+          </Button> */}
+        </Space>
+      ),
+    },
+];
 
+
+  const handleEdit = (record) => {
+    form.setFieldsValue(record); // Điền dữ liệu của record vào form
+    setIsEditModalOpen(true); // Hiển thị modal chỉnh sửa
+  };
   useEffect(() => {
     fetch('https://provinces.open-api.vn/api/p/')
       .then(res => res.json())
@@ -177,24 +212,8 @@ export default function Field() {
     const file = values.image[0].originFileObj;
 
     // Đổi tên file ảnh bằng uuid
-    const newFileName = `${uuidv4()}${file.name.substring(file.name.lastIndexOf('.'))}`;
-
-    // Tạo FormData để upload ảnh
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', newFileName);
-
-  // Gọi hàm uploadImage để upload ảnh
-    // const uploadResponse = await uploadImage(formData);
-
-
-    // if (uploadResponse.status !== 200) {
-    //   message.error('Upload image failed!');
-    //   return;
-    // }
-
-    // // Đường dẫn ảnh sau khi upload
-    // const imagePath = `/imagefield/${newFileName}`;
+    const imagePath = await uploadImageToCloudinary(file);
+    console.log('Image uploaded to:', imagePath);
 
     const provinceObj = provinces.find(p => p.code == values.province);
     const districtObj = districts.find(d => d.code == values.district);
@@ -216,7 +235,7 @@ export default function Field() {
         status: statusValue,
         description: values.description,
         userId: userId,
-        image: "",
+        image: imagePath,
     };
     // Gọi hàm thêm field
     const result = await addField(fieldData);
@@ -228,8 +247,6 @@ export default function Field() {
       fetchFields();
     } else {
       message.error('Create failed!');
-      await deleteImage(newFileName);
-   
     }
     setIsModalOpen(false);
     form.resetFields();
@@ -258,10 +275,10 @@ export default function Field() {
             style={{ width: 200 }}
           />
           <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
-            Refresh
+            Làm mới
           </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAddField}>
-            Add Field
+            Thêm sân
           </Button>
         </Space>
       </div>
@@ -276,15 +293,13 @@ export default function Field() {
         destroyOnClose
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter field name' }]}>
+          <Form.Item name="name" label="Tên" rules={[{ required: true, message: 'Please enter field name' }]}>
             <Input />
           </Form.Item>
-
-
           <div style={{ display: 'flex', gap: '16px' }}>
               <Form.Item
                 name="type"
-                label="Type"
+                label="Loại cỏ"
                 rules={[{ required: true, message: 'Please select field type' }]}
                 style={{ flex: 1 }}
               >
@@ -295,7 +310,7 @@ export default function Field() {
               </Form.Item>
               <Form.Item
                 name="status"
-                label="Status"
+                label="Trạng thái"
                 rules={[{ required: true, message: 'Please select field status' }]}
                 style={{ flex: 1 }}
               >
@@ -310,7 +325,7 @@ export default function Field() {
          <div style={{ display: 'flex', gap: '16px' }}>
             <Form.Item
               name="size"
-              label="Size"
+              label="Kích thước"
               rules={[
                 { required: true, message: 'Nhập số người' },
                 { type: 'integer', min: 1, message: 'Số người phải lớn hơn 0, là số nguyên' },
@@ -321,7 +336,7 @@ export default function Field() {
             </Form.Item>
             <Form.Item
               name="price"
-              label="Price"
+              label="Giá theo giờ"
               rules={[
                 { required: true, message: 'Nhập giá' },
                 { type: 'number', min: 1, message: 'Giá phải lớn hơn 0' },
@@ -333,7 +348,7 @@ export default function Field() {
           </div>
           
           
-          <Form.Item label="Address" required>
+          <Form.Item label="Địa chỉ" required>
   <Input.Group compact>
     <Form.Item
       name="province"
@@ -390,11 +405,11 @@ export default function Field() {
     </Form.Item>
   </Input.Group>
 </Form.Item>
-        <Form.Item name="specificaddress" label="Specific address" rules={[{ required: true }]}>
+        <Form.Item name="specificaddress" label="Địa chỉ cụ thể" rules={[{ required: true }]}>
             <Input />
         </Form.Item>
          
-          <Form.Item name="description" label="Description">
+          <Form.Item name="description" label="Mô tả">
             <Input.TextArea />
           </Form.Item>
 
@@ -406,7 +421,7 @@ export default function Field() {
               getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
               rules={[{ required: true, message: 'Please upload an image' }]}
               style={{ flex: 1 }}
-            >
+            > 
               <Upload
                 name="image"
                 listType="picture"
@@ -421,6 +436,125 @@ export default function Field() {
 
         </Form>
       </Modal>
+
+
+
+      <Modal
+  title="Edit Field"
+  open={isEditModalOpen}
+  onOk={async () => {
+    try {
+      const values = await form.validateFields();
+      const updatedField = {
+        ...values,
+        id: form.getFieldValue('id'), // Lấy ID từ form
+      };
+      const response = await axios.put(`/api/fields/${updatedField.id}`, updatedField);
+      if (response.data.code === 200) {
+        message.success('Field updated successfully!');
+        setIsEditModalOpen(false);
+        fetchFields(); // Cập nhật lại danh sách
+      } else {
+        message.error('Failed to update field. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating field:', error);
+      message.error('An error occurred while updating the field.');
+    }
+  }}
+  onCancel={() => {
+    setIsEditModalOpen(false);
+    form.resetFields(); // Xóa dữ liệu trong form khi đóng modal
+  }}
+  okText="Save"
+  destroyOnClose
+>
+    <Form form={form} layout="vertical">
+  <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter field name' }]}>
+    <Input />
+  </Form.Item>
+
+    <div style={{ display: 'flex', gap: '16px' }}>
+        <Form.Item
+          name="type"
+          label="Type"
+          rules={[{ required: true, message: 'Please select field type' }]}
+          style={{ flex: 1 }}
+        >
+          <Select>
+            <Select.Option value="Cỏ tự nhiên">Cỏ tự nhiên</Select.Option>
+            <Select.Option value="Cỏ nhân tạo">Cỏ nhân tạo</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="status"
+          label="Status"
+          rules={[{ required: true, message: 'Please select field status' }]}
+          style={{ flex: 1 }}
+        >
+          <Select>
+            <Select.Option value="Đang sử dụng">Đang sử dụng</Select.Option>
+            <Select.Option value="Bảo trì">Bảo trì</Select.Option>
+            <Select.Option value="Ngừng hoạt động">Ngừng hoạt động</Select.Option>
+          </Select>
+        </Form.Item>
+      </div>
+
+      <div style={{ display: 'flex', gap: '16px' }}>
+        <Form.Item
+          name="size"
+          label="Size"
+          rules={[{ required: true, message: 'Please enter field size' }]}
+          style={{ flex: 1 }}
+        >
+      <InputNumber min={1} step={1} style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item
+          name="price"
+          label="Price"
+          rules={[{ required: true, message: 'Please enter field price' }]}
+          style={{ flex: 1 }}
+        >
+          <InputNumber min={1} step={1} style={{ width: '100%' }} />
+        </Form.Item>
+      </div>
+
+      <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please enter field address' }]}>
+        <Input />
+      </Form.Item>
+
+      <Form.Item name="description" label="Description">
+        <Input.TextArea />
+      </Form.Item>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <Form.Item label="Image">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Hiển thị ảnh hiện tại */}
+            <img
+              src={form.getFieldValue('image')} // Lấy đường dẫn ảnh từ form
+              alt="Current Field Image"
+              style={{ width: '100px', height: 'auto', borderRadius: '8px', border: '1px solid #ddd' }}
+            />
+            {/* Nút upload ảnh mới */}
+            <Upload
+              name="image"
+              listType="picture"
+              maxCount={1}
+              beforeUpload={(file) => {
+                form.setFieldsValue({ image: file }); // Lưu file trực tiếp vào form
+                return false; // Ngăn upload tự động
+              }}
+            >
+              <Button type="primary">Upload New Image</Button>
+            </Upload>
+          </div>
+        </Form.Item>
+      <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>Nên chọn ảnh 1280x960</p>
+    </div>
+
+
+    </Form>
+    </Modal>
     </div>
   );
 }

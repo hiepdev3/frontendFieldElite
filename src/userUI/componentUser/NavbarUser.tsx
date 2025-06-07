@@ -16,12 +16,12 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
   const [cartCount, setCartCount] = useState<number>(0);
 
   useEffect(() => {
-        // Lấy thông tin currentUser từ localStorage hoặc sessionStorage
-        const storedUser = localStorage.getItem("currentUser");
-        if (storedUser) {
-          setCurrentUser(JSON.parse(storedUser));
+        // Lấy thông tin currentUser từ sessionStorage
+         const storedUser = sessionStorage.getItem("user");
+          if (storedUser) {
+            setCurrentUser(JSON.parse(storedUser));
         }
-    // Lấy giá trị cartCount từ localStorage khi component được mount
+       // Lấy giá trị cartCount từ localStorage khi component được mount
       initializeCartCount(setCartCount);
      // Lắng nghe sự kiện storage để cập nhật cartCount khi localStorage thay đổi
       const handleStorageChange = (event: StorageEvent) => {
@@ -59,13 +59,14 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
             </a>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
               <a href="/user-home" className="inline-flex items-center px-1 pt-1 border-b-2 border-green-500 text-sm font-medium text-gray-900">
-                Home
+                Trang Chủ
               </a>
               <a href="/fields-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
-                Fields
+               Sân Bóng
+
               </a>
               <a href="/promotions-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
-                Promotions
+               Khuyến Mãi
               </a>
               {/* <a href="/account-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
                 Account
@@ -86,7 +87,7 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
 
             {!currentUser && (
               <Button type="primary" className="ml-4" onClick={() => navigate('/login')}>
-                Login
+                Đăng Nhập
               </Button>
             )}
 
