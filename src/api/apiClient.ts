@@ -21,8 +21,8 @@ export const ApiClient = axios.create({
   // headers: {
   //   'Content-Type': 'application/json', // Định dạng JSON
   // },
-  baseURL: 'http://localhost:5000', // URL gốc của backend
-  // baseURL: 'https://backend-sohu-production.up.railway.app', // URL gốc của backend
+  //baseURL: 'http://localhost:5000', // URL gốc của backend
+   baseURL: 'https://backend-sohu-production.up.railway.app', // URL gốc của backend
    headers: {
     'Content-Type': 'application/json',
   },
@@ -48,8 +48,8 @@ ApiClient.interceptors.response.use(
       try {
         // Gọi API refresh token
         const refreshResponse = await axios.post(
-          'http://localhost:5000/refresh', // Địa chỉ API làm mới token
-          //'https://backend-sohu-production.up.railway.app/refresh',
+         // 'http://localhost:5000/refresh', // Địa chỉ API làm mới token
+          'https://backend-sohu-production.up.railway.app/refresh',
           {
             userId: sessionStorage.getItem('userid'), // Lấy userId từ sessionStorage
             refreshToken: sessionStorage.getItem('refreshToken'), // Lấy refreshToken từ sessionStorage
