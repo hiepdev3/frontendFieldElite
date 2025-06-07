@@ -86,9 +86,10 @@ export default function CartUser() {
         // Tính toán timeEnd dựa trên bookingDate và hours
         const [hour, minute] = item.timeSlot.split(':').map(Number); // Chuyển timeSlot thành giờ và phút
         const formattedMinute = minute.toString().padStart(2, '0');
+        const endHour = (hour + item.hours).toString().padStart(2, '0');
 
         // Tính toán timeEnd dựa trên bookingDate và hours
-        const timeEnd = `${item.date}T${hour + item.hours}:${formattedMinute}:00.000Z`;
+        const timeEnd = `${item.date}T${endHour}:${formattedMinute}:00.000Z`;
 
 
         return {
