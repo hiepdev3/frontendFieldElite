@@ -50,11 +50,16 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
           <div className="flex items-center">
             <a href="/user-home" className="flex-shrink-0 flex items-center">
               <div className="h-10 w-auto text-green-600 font-bold text-2xl flex items-center" style={{ fontFamily: playfairFont }}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="12 6 8 12 12 18 16 12 12 6" />
-                </svg>
-                SUHO
+                </svg> */}
+                 
+                <img src="../z6685029163397_73ce9ea0bbae8003020504cb48876513.jpg"
+                    alt="Logo"
+                    className="h-8 w-8 mr-2" // Kích thước và khoảng cách
+                />
+                SoHu
               </div>
             </a>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
