@@ -32,18 +32,22 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       // Gọi API để đăng nhập
       const response = await loginAll(username, password);
 
-      if (response.data.code == 200) {
-        // Lưu accessToken vào sessionStorage
-        sessionStorage.setItem('accessToken', response.data.data.accessToken);
-
-        // Gọi API lấy thông tin người dùng
-        const userData = await fetchUserData();
-        if (!userData) {
-            throw new Error("Failed to fetch user data.");
-        }
-            // Cập nhật state
-            setCurrentUser(userData);
-            setIsLoggedIn(true);
+        if (response.data.code == 200) {
+           if (response.data.data.status === false) {
+              // Chuyển hướng đến trang account-disabled
+              window.location.href = '/account-disabled';
+              return; // Dừng xử lý tiếp theo
+            }
+            // Lưu accessToken vào sessionStorage
+            sessionStorage.setItem('accessToken', response.data.data.accessToken);
+            // Gọi API lấy thông tin người dùng
+            const userData = await fetchUserData();
+            if (!userData) {
+                throw new Error("Failed to fetch user data.");
+            }
+                // Cập nhật state
+                setCurrentUser(userData);
+                setIsLoggedIn(true);
         } 
           return "ok"; 
     } catch (error: any) {
@@ -66,6 +70,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         // Gọi API lấy thông tin người dùng
         const userResponse = await getMe();
         if (userResponse.data.code === 200) {
+          
           const data = userResponse.data.data;
 
           // Kiểm tra role và xử lý giỏ hàng nếu cần

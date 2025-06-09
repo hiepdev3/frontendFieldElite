@@ -28,7 +28,7 @@ import Voucher from './Voucher.tsx';
 import RegisterForm from './registerForm.tsx';
 import ManagerAccount from '../components/ManageAccount.tsx';
 import Checkout from '../userUI/pagesUser/Checkout.tsx';
-
+import AccountDisabledPage from './AccountDisabledPage.tsx';
 const Categories = lazy(() => import('./Categories.tsx'));
 const Dashboard = lazy(() => import('./Dashboard.tsx'));
 const Vendors = lazy(() => import('./Vendors.tsx'));
@@ -184,7 +184,10 @@ export const router = createBrowserRouter([
     path: '/checkout',
     element: <Checkout />,
   },
-  
+  {
+    path: '/account-disabled',
+    element: <AccountDisabledPage />,
+  },
 
   // {
   //   path: '/forgot-password',

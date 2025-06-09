@@ -39,3 +39,12 @@ export const uploadImageToCloudinary = async (
   }
 };
 
+export const deleteField = (fieldId: string) => {
+  return ApiClient.delete(`/api/Field/deletefield/${fieldId}`);
+};
+
+
+
+export const editField = async (fieldId: string, fieldData: any) => {
+  return ApiClient.put(`/api/Field/editfield/${fieldId}`, fieldData);
+};

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Space, Modal, Form, Select, InputNumber,Upload } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { getAllFieldByUserId } from '../api/fieldService';
-import { message } from 'antd';
+import { getAllFieldByUserId, deleteField, editField } from '../api/fieldService';
+import { message,Checkbox } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { uploadImageToCloudinary, addField } from '../api/fieldService';
+
 
 // const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 // const userId = currentUser.id;
@@ -29,6 +30,8 @@ export default function Field() {
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteFieldId, setDeleteFieldId] = useState(null);
 
 const columns = [
   {
@@ -111,18 +114,96 @@ const columns = [
           >
             Sửa
           </Button>
-          {/* <Button
+          <Button
             type="link"
             danger
             onClick={() => handleDelete(record.id)}
           >
             Delete
-          </Button> */}
+          </Button>
         </Space>
       ),
     },
 ];
 
+    const handleEditField = async () => {
+      try {
+        const values = await form.validateFields();
+
+        let imagePath = form.getFieldValue('image'); // Lấy đường dẫn ảnh hiện tại từ form
+
+        // Kiểm tra nếu người dùng upload ảnh mới
+        if (values.image && values.image[0]?.originFileObj) {
+          const file = values.image[0].originFileObj; // Lấy file ảnh mới
+          imagePath = await uploadImageToCloudinary(file); // Upload ảnh mới lên Cloudinary
+          console.log('Image uploaded to:', imagePath);
+        }
+
+        const provinceObj = provinces.find(p => p.code == values.province);
+        const districtObj = districts.find(d => d.code == values.district);
+        const wardObj = wards.find(w => w.code == values.ward);
+
+        let statusValue = 1;
+        if (values.status === 'Ngừng hoạt động') statusValue = 0;
+        else if (values.status === 'Bảo trì') statusValue = 2;
+
+        const updatedField = {
+          name: values.name,
+          type: values.type,
+          size: values.size,
+          price: values.price,
+          province: provinceObj ? provinceObj.name : values.province,
+          district: districtObj ? districtObj.name : values.district,
+          ward: wardObj ? wardObj.name : values.ward,
+          specificAddress: values.specificAddress,
+          status: statusValue,
+          description: values.description,
+          image: imagePath, // Sử dụng ảnh mới hoặc giữ nguyên ảnh cũ
+          id: form.getFieldValue('id'), // Lấy ID từ form
+        };
+        console.log(updatedField);
+        const response = await editField(updatedField.id, updatedField); // Gọi API chỉnh sửa
+        
+        if (response.data.code === 200) {
+          message.success('Field updated successfully!');
+          setIsEditModalOpen(false);
+          fetchFields(); // Cập nhật lại danh sách
+        } else {
+          message.error('Failed to update field. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error updating field:', error);
+        message.error('An error occurred while updating the field.');
+      }
+    };
+  
+    const handleDelete = (id) => {
+      setDeleteFieldId(id); // Lưu ID của sân cần xóa
+      form.resetFields(); // Đặt lại trạng thái form để đảm bảo checkbox chưa được tích
+      setIsDeleteModalOpen(true); // Hiển thị modal xác nhận xóa
+    };
+   const confirmDelete = async () => {
+      try {
+        const values = await form.validateFields(); // Kiểm tra xem checkbox đã được tích chưa
+        if (!values.agree) {
+          message.error('Bạn phải đồng ý với chính sách để tiếp tục.');
+          return; // Ngăn không cho đóng modal
+        }
+
+        const response = await deleteField(deleteFieldId); // Sử dụng ID sân đã lưu để xóa
+        if (response.data.code === 200) {
+          message.success('Field deleted successfully!');
+          fetchFields(); // Cập nhật lại danh sách sau khi xóa
+          setIsDeleteModalOpen(false); // Đóng modal sau khi xử lý xong
+          setDeleteFieldId(null); // Xóa ID sân đã lưu
+        } else {
+          message.error('Failed to delete field. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error deleting field:', error);
+        message.error('An error occurred while deleting the field.');
+      }
+};
 
   const handleEdit = (record) => {
     form.setFieldsValue(record); // Điền dữ liệu của record vào form
@@ -185,6 +266,7 @@ const columns = [
             : '',
       }));
       setDataSource(initialData);
+      console.log('Fetched fields:', initialData);
       setInitialData(initialData);
     } catch (err) {
       console.error(err);
@@ -442,26 +524,7 @@ const columns = [
       <Modal
   title="Edit Field"
   open={isEditModalOpen}
-  onOk={async () => {
-    try {
-      const values = await form.validateFields();
-      const updatedField = {
-        ...values,
-        id: form.getFieldValue('id'), // Lấy ID từ form
-      };
-      const response = await axios.put(`/api/fields/${updatedField.id}`, updatedField);
-      if (response.data.code === 200) {
-        message.success('Field updated successfully!');
-        setIsEditModalOpen(false);
-        fetchFields(); // Cập nhật lại danh sách
-      } else {
-        message.error('Failed to update field. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error updating field:', error);
-      message.error('An error occurred while updating the field.');
-    }
-  }}
+  onOk={handleEditField} 
   onCancel={() => {
     setIsEditModalOpen(false);
     form.resetFields(); // Xóa dữ liệu trong form khi đóng modal
@@ -519,9 +582,67 @@ const columns = [
         </Form.Item>
       </div>
 
-      <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please enter field address' }]}>
-        <Input />
-      </Form.Item>
+     <Form.Item label="Địa chỉ" required>
+      <Input.Group compact>
+        <Form.Item
+          name="province"
+          noStyle
+          rules={[{ required: true, message: 'Chọn tỉnh/thành phố' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Tỉnh/Thành phố"
+            onChange={handleProvinceChange}
+            style={{ width: 154 }}
+            optionFilterProp="children"
+          >
+            {provinces.map(p => (
+              <Select.Option key={p.code} value={p.code}>{p.name}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="district"
+          noStyle
+          rules={[{ required: true, message: 'Chọn quận/huyện' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Quận/Huyện"
+            onChange={handleDistrictChange}
+            value={selectedDistrict}
+            disabled={!selectedProvince}
+            style={{ width: 154, marginLeft: 5 }}
+            optionFilterProp="children"
+          >
+            {districts.map(d => (
+              <Select.Option key={d.code} value={d.code}>{d.name}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="ward"
+          noStyle
+          rules={[{ required: true, message: 'Chọn xã/phường' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Xã/Phường"
+            disabled={!selectedDistrict}
+            style={{ width: 154, marginLeft: 5 }}
+            optionFilterProp="children"
+          >
+            {wards.map(w => (
+              <Select.Option key={w.code} value={w.code}>{w.name}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Input.Group>
+    </Form.Item>
+
+    <Form.Item name="specificAddress" label="Địa chỉ cụ thể" rules={[{ required: true }]}>
+      <Input />
+    </Form.Item>
 
       <Form.Item name="description" label="Description">
         <Input.TextArea />
@@ -554,6 +675,27 @@ const columns = [
 
 
     </Form>
+    </Modal>
+
+    <Modal
+      title="Xác nhận xóa sân"
+      open={isDeleteModalOpen}
+      onOk={confirmDelete} // Gọi hàm xóa khi nhấn "OK"
+      onCancel={() => setIsDeleteModalOpen(false)} // Đóng modal khi nhấn "Cancel"
+      okText="Xóa"
+      cancelText="Hủy"
+    >
+      <Form form={form}>
+        <p>Bạn có chắc chắn muốn xóa sân này không?</p>
+        <p>Nếu sân đã được đặt, bạn chấp nhận chính sách hoàn tiền của chúng tôi.</p>
+        <Form.Item
+          name="agree"
+          valuePropName="checked"
+          rules={[{ required: true, message: 'Bạn phải đồng ý với chính sách để tiếp tục.' }]}
+        >
+          <Checkbox>Tôi đồng ý với chính sách hoàn tiền</Checkbox>
+        </Form.Item>
+      </Form>
     </Modal>
     </div>
   );
