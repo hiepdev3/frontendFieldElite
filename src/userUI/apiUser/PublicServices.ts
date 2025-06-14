@@ -34,16 +34,22 @@ export const loginWithGoogle = (accessToken: string) => {
       accessToken: accessToken,
    });
 };
-export const addListCart = (payload: { 
-  userId: number; 
-  carts: { 
-    fieldId: number; 
-    bookingDate: string; 
-    timeEnd: string; 
-    status: number; 
-  }[] 
-}) => {
-  return ApiClient.post('/api/Customer/addListCart', payload);
+
+
+export const addListCart = (userId: number, carts: {
+  id: string; 
+  name: string; 
+  location: string; 
+  rating: number; 
+  features: string[]; 
+  availability: string; 
+  timeSlots: string; 
+  pricePerHour: number; 
+  image: string; 
+  date: string; 
+  duration: number; 
+}[]) => {
+  return ApiClient.post(`/api/Customer/addListCart?userId=${userId}`, { carts });
 };
 
 

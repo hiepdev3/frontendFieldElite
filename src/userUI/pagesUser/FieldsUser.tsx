@@ -9,12 +9,15 @@ import { getAvailableFields } from '../apiUser/PublicServices';
 import { message } from 'antd';
 import  {addTheCart} from '../apiUser/PublicServices';
 import {getListCart} from '../apiUser/PublicServices';
+import { useNavigate } from 'react-router-dom';
+
+
 
 export default function FieldsUser() {
   const [cartCount, setCartCount] = useState<number>(0)
   const [allfields, setFields] = useState([]); // State để lưu danh sách fields
   const [loading, setLoading] = useState(true); // State để hiển thị trạng thái loading
- 
+  const navigate = useNavigate(); // Sử dụng hook navigate
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid')
   const [activeFilter, setActiveFilter] = useState<string>('All Fields')
   
@@ -22,6 +25,19 @@ export default function FieldsUser() {
   useEffect(() => {
     initializeCartCount(setCartCount); // Gọi hàm từ cartUtils
   }, []);
+
+  const handleQuickBook = (field: any) => {
+    addToCart(field); // Gọi hàm addToCart để thêm sân vào giỏ hàng
+    // Kiểm tra xem người dùng đã đăng nhập hay chưa
+    const accessToken = sessionStorage.getItem('accessToken'); // Kiểm tra token đăng nhập
+    if (!accessToken) {
+        sessionStorage.setItem('quickBook', 'true');
+        message.warning('You need to log in to proceed!');
+        navigate('/login'); // Điều hướng đến trang đăng nhập
+    }else {
+       navigate('/cart-user'); // Điều hướng đến trang giỏ hàng
+    }
+};
 
   const addToCart = async (field: any) => {
     // Lấy danh sách giỏ hàng hiện tại từ localStorage
@@ -112,15 +128,7 @@ export default function FieldsUser() {
       setLoading(false); // Kết thúc loading
     }
   };
-  // const generateTimeSlots = () => {
-  //     const slots = [];
-  //     for (let hour = 6; hour <= 23; hour++) {
-  //       for (let minute of ['00', '30']) {
-  //         slots.push({ time: `${hour}:${minute}`, available: true }); // Tất cả time slots đều available
-  //       }
-  //     }
-  //     return slots;
-  // };
+
   useEffect(() => {
       fetchAllFields(); // Gọi hàm fetchAllFields
     }, []);
@@ -533,7 +541,9 @@ export default function FieldsUser() {
                       </div>
                       
                       {/* Quick Book Button (Visible on Hover) */}
-                      <div className="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      <div className="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0"
+                       onClick={() => handleQuickBook(field)}
+                       >
                         <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full shadow-lg transition-all duration-200">
                           Quick Book
                         </button>

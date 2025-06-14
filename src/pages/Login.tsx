@@ -36,12 +36,18 @@ export const Login = () => {
         if(reponse){
             message.success('Login successful!');
             const roleid = sessionStorage.getItem('roleid');
+            const quickBook = sessionStorage.getItem('quickBook');
               if (roleid == '2' || roleid == '1') {
                 navigate('/dashboard');
               } else {
-                navigate('/');
+                if(quickBook === 'true'){ 
+                  navigate('/cart-user');
+                  sessionStorage.removeItem('quickBook');
+                }else{
+                  navigate('/');
+                }
               }
-        }
+          }
       } catch (error: any) {
         message.error(error.message || 'Login failed. Please try again.');
       } finally {
@@ -57,7 +63,7 @@ export const Login = () => {
         },
         onError: () => {
           console.log('Google login failed');
-        },  
+        },
     });
 
     const handleGoogleLogin = async (accessToken: string) => {

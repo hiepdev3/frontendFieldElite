@@ -40,34 +40,6 @@ export default function HomeUser() {
   },[]);
 
 
-  // Sample data for fields
-  // const fields = [
-  //   {
-  //     id: '1',
-  //     name: 'Green Valley Stadium',
-  //     location: 'Downtown, City Center',
-  //     rating: 4.8,
-  //     pricePerHour: 120,
-  //     image: 'https://images.unsplash.com/photo-1521731978332-9e9e714bdd20?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80'
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'Urban Soccer Arena',
-  //     location: 'Westside, Sports District',
-  //     rating: 4.5,
-  //     pricePerHour: 95,
-  //     image: 'https://images.unsplash.com/photo-1518604666860-9ed391f76460?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'
-  //   },
-  //   {
-  //     id: '3',
-  //     name: 'Riverside Field',
-  //     location: 'Eastside, River Park',
-  //     rating: 4.2,
-  //     pricePerHour: 80,
-  //     image: 'https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1173&q=80'
-  //   }
-  // ]
-
   // Sample data for promotions
   const promotions = [
     {

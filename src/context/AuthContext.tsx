@@ -79,13 +79,14 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             if (storedCart) {
               const cart = JSON.parse(storedCart);
               if (Array.isArray(cart) && cart.length > 0) {
-                const payload = {
-                  userId: data.id,
-                  carts: cart,
-                };
+                // const payload = {
+                //   userId: data.id,
+                //   carts: cart,
+                // };
 
                 try {
-                  const addCartResponse = await addListCart(payload);
+                  
+                  const addCartResponse = await addListCart(data.id, cart );
                   if (addCartResponse.data.code !== 200) {
                     throw new Error(addCartResponse.data.message);
                   }
