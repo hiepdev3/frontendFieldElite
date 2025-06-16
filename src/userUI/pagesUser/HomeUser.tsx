@@ -251,7 +251,7 @@ export default function HomeUser() {
               <Components.FieldCardUser 
                 key={field.id} 
                 field={field} 
-                onAddToCart={(id) => console.log(`Added field ${id} to cart`)}
+               
               />
             ))}
           </div>
