@@ -149,6 +149,26 @@ export const addListPayment = (payload: {
 };
 
 
+
+export const ValidatePayments = (payload: {
+  userId: number;
+  voucherCode: string;
+  fieldId: number;
+  discountAmount: number;
+  finalPrice: number;
+  paidAt: string;
+  paymentMethod: string;
+  status: number;
+  bookingDate: string;
+  timeEnd: string;
+  paymentCode: string;
+  totalFinalAmount: number;
+}[]) => {
+  return ApiClient.post('/api/Payment/validatePayments', payload);
+};
+
+
+
 export const getPaymentSummary = (paymentCode: string, userId: number) => {
   return ApiClient.get(`/api/Payment/payment-summary?paymentCode=${paymentCode}&userId=${userId}`);
 };
@@ -195,10 +215,13 @@ export const changeBookingStatus = (payload: {
   });
 };
 
-export const createPaymentVNpay = async (txnRef: string, orderInfo: string, amount: number) => {
-  console.log('Creating VNPay payment with:', { txnRef, orderInfo, amount });
- // return ApiClient.get(`/api/Payment/vnpay/create?txnRef=${txnRef}&orderInfo=${orderInfo}&amount=${amount}}`);
-  const url = `/api/Payment/vnpay/create?txnRef=${encodeURIComponent(txnRef)}&orderInfo=${encodeURIComponent(orderInfo)}&amount=${encodeURIComponent(amount)}`;
-  return ApiClient.get(url);
-};
 
+export const createPaymentVNpay = async (payload: {
+  orderType: string;
+  amount: number;
+  orderDescription: string;
+  name: string;
+}) => {
+  return ApiClient.post('/api/Payment/vnpay/create', payload, {
+  });
+};

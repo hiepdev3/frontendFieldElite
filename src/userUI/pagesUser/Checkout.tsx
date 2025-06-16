@@ -4,12 +4,13 @@ import Cookies from 'js-cookie';
 import { getPaymentSummary } from '../apiUser/PublicServices';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import {  addListPayment } from '../apiUser/PublicServices';
+import { useAuth } from '../../context/AuthContext'; 
+
 
 export default function Checkout() {
+   const { fetchUserData } = useAuth();
   const navigate = useNavigate(); // Hook để điều hướng
-
-  const userId = sessionStorage.getItem('userid');
-
   // State để lưu thông tin từ API
   const [userInfo, setUserInfo] = useState({
     fullName: "John Doe",
@@ -27,26 +28,52 @@ export default function Checkout() {
   ]);
 
   useEffect(() => {
-    const paymentCode = Cookies.get('paymentCode');
-    if (paymentCode && userId) {
-      // Gọi API để lấy thông tin thanh toán
-      getPaymentSummary(paymentCode, parseInt(userId, 10))
-        .then((response) => {
-          if (response.status === 200) {
-            const data = response.data.data;
-            console.log('Payment summary data:', response);
-            // Gán dữ liệu trả về vào các state
-            setUserInfo({
-              fullName: data.fullName,
-              phoneNumber: "+123 456 7890", // Mặc định
-            });
+    const processPayment = async (): Promise<void> => {
+    try {
+    
+    // lấy accessToken localStorage
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+          message.error('Access token is missing. Please log in again.');
+          navigate('/login'); 
+          return;
+    }
 
-            setPaymentInfo({
-              totalAmount: `${data.totalAmount} VNĐ`,
-              paymentMethod: "Credit Card (**** **** **** 1234)", // Mặc định
-            });
-            console.log('Payment details:', data.fields);
-            setBookedFields(response.data.data.fields);
+    const userData = await fetchUserData();
+    if (!userData) {
+      message.error('Failed to fetch user data. Please log in again.');
+      navigate('/login');
+      return;
+    }
+
+  const paymentDataFromStorage = JSON.parse(localStorage.getItem('paymentData') || '{}');
+  const userId = sessionStorage.getItem('userid');
+
+     const paymentResponse = await addListPayment(paymentDataFromStorage);
+        console.log('Payment response:', paymentResponse);
+        if (paymentResponse.data.code === 200) {
+          message.success('Payment processed successfully!');
+          const paymentCode = paymentResponse.data.data;
+          
+          if (paymentCode && userId) {
+              // Gọi API để lấy thông tin thanh toán
+              getPaymentSummary(paymentCode, parseInt(userId, 10))
+                .then((response) => {
+                  if (response.status === 200) {
+                    const data = response.data.data;
+                    console.log('Payment summary data:', response);
+                    // Gán dữ liệu trả về vào các state
+                    setUserInfo({
+                      fullName: data.fullName,
+                      phoneNumber: "+123 456 7890", // Mặc định
+                    });
+
+                    setPaymentInfo({
+                      totalAmount: `${data.totalAmount} VNĐ`,
+                      paymentMethod: "Credit Card (**** **** **** 1234)", // Mặc định
+                    });
+           
+                    setBookedFields(response.data.data.fields);
           } else {
             message.error('Failed to fetch payment details.');
           }
@@ -56,6 +83,16 @@ export default function Checkout() {
           message.error('An error occurred while fetching payment details.');
         });
     }
+        }else if(paymentResponse.data.code === 204) {
+          message.error(`${paymentResponse.data.message}`);
+        }
+
+      } catch (error) {
+        console.error('Error processing payment:', error);
+        message.error('An error occurred while processing payment.');
+      }
+    };
+     processPayment();
   }, []);
 
   return (
