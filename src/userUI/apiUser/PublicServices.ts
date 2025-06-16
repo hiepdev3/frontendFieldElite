@@ -191,9 +191,14 @@ export const changeBookingStatus = (payload: {
   userId: number;
 }) => {
   return ApiClient.post('/api/Customer/changeStatusPayment', payload, {
-    headers: {
-      Accept: '*/*',
-      'Content-Type': 'application/json',
-    },
+    
   });
 };
+
+export const createPaymentVNpay = async (txnRef: string, orderInfo: string, amount: number) => {
+  console.log('Creating VNPay payment with:', { txnRef, orderInfo, amount });
+ // return ApiClient.get(`/api/Payment/vnpay/create?txnRef=${txnRef}&orderInfo=${orderInfo}&amount=${amount}}`);
+  const url = `/api/Payment/vnpay/create?txnRef=${encodeURIComponent(txnRef)}&orderInfo=${encodeURIComponent(orderInfo)}&amount=${encodeURIComponent(amount)}`;
+  return ApiClient.get(url);
+};
+

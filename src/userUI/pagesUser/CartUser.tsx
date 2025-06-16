@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { getListCart } from '../apiUser/PublicServices';
 import { useNavigate } from 'react-router-dom';
 import { Modal } from 'antd';
-import { changeListCartStatus,checkAvailability,removeCart,addListPayment } from '../apiUser/PublicServices';
+import { changeListCartStatus,checkAvailability,removeCart,addListPayment,createPaymentVNpay } from '../apiUser/PublicServices';
 import { message } from 'antd';
 import Cookies from 'js-cookie';
 
@@ -104,23 +104,40 @@ export default function CartUser() {
           bookingDate, // Kết hợp ngày và thời gian
           timeEnd, // Thời gian kết thúc
           paymentCode: "",
-          totalFinalAmount: cartData.reduce((total, item) => total + item.pricePerHour * item.hours, 0),
+          totalFinalAmount: cartData.reduce((total, item) => {
+              return total + item.pricePerHour * item.hours;
+            }, 0) * 1.05,
         };
       });
         console.log('Payment data:', paymentData);
         // Gửi dữ liệu thanh toán đến backend
+        // Dữ liệu cần thiết để tạo giao dịch
+        const txnRef = 'TXN12345'; // Mã giao dịch
+        const orderInfo = 'Payment for order #12345'; // Thông tin đơn hàng
+        const amount = paymentData[0].totalFinalAmount; // Số tiền thanh toán
+        console.log('Transaction Reference:', amount);
+        const response = await createPaymentVNpay(txnRef, orderInfo, amount);
+        
+          if (response && response.data && response.data.paymentUrl) {
+            // Chuyển người dùng đến URL thanh toán
+            window.location.href = response.data.paymentUrl;
+          } else {
+            message.error('Failed to retrieve payment URL. Please try again.');
+          }
+        console.log('Payment response:', response);  
 
-        const paymentResponse = await addListPayment(paymentData);
-        console.log('Payment response:', paymentResponse);
-        if (paymentResponse.data.code === 200) {
-          message.success('Payment processed successfully!');
-          const paymentCode = paymentResponse.data.data;
-          Cookies.set('paymentCode', paymentCode, { secure: true, sameSite: 'Strict' }); // Lưu vào cookie
+
+        // const paymentResponse = await addListPayment(paymentData);
+        // console.log('Payment response:', paymentResponse);
+        // if (paymentResponse.data.code === 200) {
+        //   message.success('Payment processed successfully!');
+        //   const paymentCode = paymentResponse.data.data;
+        //   Cookies.set('paymentCode', paymentCode, { secure: true, sameSite: 'Strict' }); // Lưu vào cookie
     
-          navigate('/checkout');
-        }else if(paymentResponse.data.code === 204) {
-          message.error(`${paymentResponse.data.message}`);
-        }
+        //   navigate('/checkout');
+        // }else if(paymentResponse.data.code === 204) {
+        //   message.error(`${paymentResponse.data.message}`);
+        // }
       }
     } else {
       message.error('You must be logged in to proceed to checkout.');
