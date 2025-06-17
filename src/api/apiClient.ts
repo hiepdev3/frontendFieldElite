@@ -22,8 +22,8 @@ export const ApiClient = axios.create({
   //   'Content-Type': 'application/json', // Định dạng JSON
   // },
   // baseURL: 'http://localhost:5000', // URL gốc của backend
- //  baseURL: 'https://backend-sohu-production.up.railway.app', // URL gốc của backend
-  baseURL: 'https://17cd-2001-ee0-40c1-5c38-4482-5ac2-fff8-b75d.ngrok-free.app', // URL gốc của backend
+  baseURL: 'https://backend-sohu-production.up.railway.app', // URL gốc của backend
+//  baseURL: 'https://17cd-2001-ee0-40c1-5c38-4482-5ac2-fff8-b75d.ngrok-free.app', // URL gốc của backend
    headers: {
     'Content-Type': 'application/json',
   },
@@ -50,8 +50,8 @@ ApiClient.interceptors.response.use(
         // Gọi API refresh token
         const refreshResponse = await axios.post(
          // 'http://localhost:5000/refresh', // Địa chỉ API làm mới token
-        //  'https://backend-sohu-production.up.railway.app/refresh',
-          'https://17cd-2001-ee0-40c1-5c38-4482-5ac2-fff8-b75d.ngrok-free.app/refresh',
+          'https://backend-sohu-production.up.railway.app/refresh',
+       //   'https://17cd-2001-ee0-40c1-5c38-4482-5ac2-fff8-b75d.ngrok-free.app/refresh',
           {
             userId: sessionStorage.getItem('userid'), // Lấy userId từ sessionStorage
             refreshToken: sessionStorage.getItem('refreshToken'), // Lấy refreshToken từ sessionStorage
