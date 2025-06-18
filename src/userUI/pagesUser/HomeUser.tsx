@@ -85,24 +85,24 @@ export default function HomeUser() {
   const testimonials = [
     {
       id: 1,
-      name: "Alex Johnson",
+      name: "Nguyễn Đức Anh",
       role: "Đội trưởng, FC United",
       quote: "Chất lượng sân bóng trên nền tảng này thật sự tuyệt vời. Việc đặt sân rất dễ dàng và dịch vụ chăm sóc khách hàng cực kỳ chuyên nghiệp.",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+      avatar: "/Brazilian_Football_Confederation_logo.svg.png"
     },
     {
       id: 2,
-      name: "Sarah Williams",
+      name: "Phạm Đức Thịnh",
       role: "Nhà tổ chức sự kiện",
       quote: "Chúng tôi đã tổ chức nhiều giải đấu qua nền tảng này. Quy trình luôn suôn sẻ và sân đúng như mô tả.",
-      avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+      avatar: "/2MJ2DHnr.png"
     },
     {
       id: 3,
-      name: "Michael Chen",
+      name: "Trần Trung Kiên",
       role: "Người chơi giải trí",
       quote: "Là người chơi bóng để vui cùng bạn bè, tôi thấy nền tảng này giúp việc tìm và đặt sân chất lượng gần nhà trở nên vô cùng đơn giản.",
-      avatar: "https://randomuser.me/api/portraits/men/67.jpg"
+      avatar: "/cong-dong-bong-da-phui-viet-nam-2-1024x683.jpg"
     }
   ]
   
@@ -136,22 +136,16 @@ export default function HomeUser() {
                   size="lg"
                   href="/fields-user"
                 >
-                  Explore Fields
+                  Khám Phá Sân Bóng
                 </Components.ButtonUser>
-                <Components.ButtonUser 
-                  variant="outline" 
-                  size="lg"
-                >
-                  How It Works
-                </Components.ButtonUser>
+              
               </div>
               <div className="mt-12 flex items-center">
                 <div className="flex -space-x-2">
-                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="" />
-                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/44.jpg" alt="" />
-                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/men/67.jpg" alt="" />
-                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/21.jpg" alt="" />
-                </div>
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="/Brazilian_Football_Confederation_logo.svg.png" alt="" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="/2MJ2DHnr.png" alt="" />
+                  <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="/cong-dong-bong-da-phui-viet-nam-2-1024x683.jpg" alt="" />
+                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
                     <div className="flex text-yellow-400">
@@ -173,7 +167,7 @@ export default function HomeUser() {
                     </div>
                     <p className="ml-2 text-white font-medium">4.9/5</p>
                   </div>
-                  <p className="text-gray-300 text-sm">from over 2,000 reviews</p>
+                  <p className="text-gray-300 text-sm">Tổng hợp từ hơn 2.000 lượt đánh giá</p>
                 </div>
               </div>
             </div>

@@ -106,7 +106,7 @@ export default function FieldsUser() {
         name: item.name, // Giữ nguyên tên
         location: `${item.ward}, ${item.district}, ${item.province}`, // Gộp ward, district, province thành location
         rating: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)), // Random rating từ 4.0 đến 5.0
-        features: ['Floodlights', 'Changing Rooms', 'Parking', 'Spectator Area']
+        features: ['Đèn chiếu sáng', 'Phòng thay đồ', 'Bãi đỗ xe', 'Khu vực khán giả ']
           .sort(() => Math.random() - 0.5) // Trộn ngẫu nhiên
           .slice(0, 3), // Lấy 3 trong 4 features
         availability: 'High', // Mặc định là High
@@ -344,104 +344,7 @@ export default function FieldsUser() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
-          <div className="w-full lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4" style={{ fontFamily: playfairFont }}>Filters</h3>
-              
-              {/* Price Range */}
-              {/* <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Price Range</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">$50</span>
-                    <span className="text-xs text-gray-500">$250</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="50" 
-                    max="250" 
-                    defaultValue="200" 
-                    className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-green-600"
-                  />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Max: $200/hour</span>
-                  </div>
-                </div>
-              </div> */}
-              
-              {/* Field Size */}
-              {/* <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Field Size</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Standard (11-a-side)</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">7-a-side</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">5-a-side</span>
-                  </label>
-                </div>
-              </div>
-               */}
-              {/* Amenities */}
-              {/* <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Amenities</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Floodlights</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Changing Rooms</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Parking</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Spectator Area</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" />
-                    <span className="ml-2 text-sm text-gray-700">Cafe</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded text-green-600 focus:ring-green-500 h-4 w-4" />
-                    <span className="ml-2 text-sm text-gray-700">Pro Equipment</span>
-                  </label>
-                </div>
-              </div> */}
-              
-              {/* Rating */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Minimum Rating</h4>
-                <select className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
-                  <option value="0">Any Rating</option>
-                  <option value="3">3+ Stars</option>
-                  <option value="4" selected>4+ Stars</option>
-                  <option value="4.5">4.5+ Stars</option>
-                  <option value="5">5 Stars Only</option>
-                </select>
-              </div>
-              
-              {/* Apply Filters Button */}
-              <Components.ButtonUser variant="primary" fullWidth>
-                Apply Filters
-              </Components.ButtonUser>
-              
-              {/* Reset Filters */}
-              <button className="w-full text-center text-sm text-gray-500 hover:text-green-600 mt-4 transition-colors duration-200">
-                Reset All Filters
-              </button>
-            </div>
-          </div>
+         
           
           {/* Main Content Area */}
           <div className="flex-1">
@@ -501,10 +404,10 @@ export default function FieldsUser() {
             {/* Results Count */}
             <div className="mb-6">
               <h2 className="text-2xl font-semibold text-gray-800" style={{ fontFamily: playfairFont }}>
-                {allfields.length} Available Fields
+                {allfields.length} Sân Có Thể Đặt Ngay
               </h2>
               <p className="text-gray-600">
-                For {selectedDate} • {selectedStartTime} - {endTime}
+                Trong khung giờ {selectedStartTime} - {endTime} • {selectedDate} 
               </p>
             </div>
             
@@ -545,7 +448,7 @@ export default function FieldsUser() {
                        onClick={() => handleQuickBook(field)}
                        >
                         <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full shadow-lg transition-all duration-200">
-                          Quick Book
+                          Đặt Nhanh
                         </button>
                       </div>
                     </div>
@@ -587,7 +490,7 @@ export default function FieldsUser() {
                       
                       {/* Time Slots */}
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Available Time Slots:</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Khung Giờ Có Sẵn:</h4>
                         <div className="flex flex-wrap gap-2">
                           {field.timeSlots.slice(0, 5).map((slot, index) => (
                             <span 
@@ -603,7 +506,7 @@ export default function FieldsUser() {
                           ))}
                           {field.timeSlots.length > 5 && (
                             <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                              +{field.timeSlots.length - 5} more
+                              +{field.timeSlots.length - 5} 
                             </span>
                           )}
                         </div>
@@ -611,17 +514,19 @@ export default function FieldsUser() {
                       
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div>
-                          <span className="text-2xl font-bold text-gray-800">{formatPrice(field.pricePerHour)}</span>
-                          <span className="text-gray-600 text-sm">/hour</span>
+                          <span className="text-2xl font-bold text-gray-800">
+                           {new Intl.NumberFormat('vi-VN').format(field.pricePerHour)} 
+                            </span>
+                          <span className="text-gray-600 text-sm">/Giờ</span>
                           <div className="text-sm text-gray-500">
-                            Total: {formatPrice(calculateTotalPrice(field.pricePerHour, selectedDuration))}
+                            Tổng: {new Intl.NumberFormat('vi-VN').format(calculateTotalPrice(field.pricePerHour, selectedDuration))} Đ
                           </div>
                         </div>
                         <Components.ButtonUser 
                           variant="primary"
                             onClick={() => addToCart(field)} // Truyền thông tin field vào hàm addToCart
                           >
-                            Add to Cart
+                            Thêm Vào Giỏ Hàng
                         </Components.ButtonUser>
                       </div>
                     </div>
@@ -716,14 +621,14 @@ export default function FieldsUser() {
                       
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div>
-                          <span className="text-2xl font-bold text-gray-800">{formatPrice(field.pricePerHour)}</span>
-                          <span className="text-gray-600 text-sm">/hour</span>
+                          <span className="text-2xl font-bold text-gray-800"> {new Intl.NumberFormat('vi-VN').format(field.pricePerHour)} </span>
+                          <span className="text-gray-600 text-sm">/Giờ</span>
                           <div className="text-sm text-gray-500">
-                            Total: {formatPrice(calculateTotalPrice(field.pricePerHour, selectedDuration))}
+                             Tổng: {new Intl.NumberFormat('vi-VN').format(calculateTotalPrice(field.pricePerHour, selectedDuration))} Đ
                           </div>
                         </div>
                         <Components.ButtonUser variant="primary">
-                          Add to Cart
+                          Thêm Vào Giỏ Hàng
                         </Components.ButtonUser>
                       </div>
                     </div>

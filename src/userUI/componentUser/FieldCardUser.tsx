@@ -120,9 +120,9 @@ export default function FieldCardUser({
         <div className="flex items-center justify-between">
           <div>
             <span className="text-2xl font-bold text-green-600">
-              {field.pricePerHour} VNĐ
+               {new Intl.NumberFormat('vi-VN').format(field.pricePerHour)} Đ
             </span>
-            <span className="text-sm font-normal text-gray-500">/hour</span>
+            <span className="text-sm font-normal text-gray-500">/Giờ</span>
           </div>
           <button
             onClick={handleBookNow}
