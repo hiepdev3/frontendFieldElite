@@ -99,7 +99,18 @@ const Dashboard = () => {
   };
 
   return (
+    
+
+    
     <section>
+      <a
+        href="https://analytics.google.com/analytics/web/#/p11386930547/reports/intelligenthome"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <button>Xem phân tích người dùng</button>
+      </a>
+
       <Title level={3}>Dashboard</Title>
       <Row gutter={[20, 20]}>
         <StatisticRow />

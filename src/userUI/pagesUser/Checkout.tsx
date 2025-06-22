@@ -32,28 +32,30 @@ export default function Checkout() {
     try {
     
     // lấy accessToken localStorage
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-          message.error('Access token is missing. Please log in again.');
-          navigate('/login'); 
-          return;
-    }
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+            message.error('Access token is missing. Please log in again.');
+            navigate('/login'); 
+            return;
+      }
 
-    const userData = await fetchUserData();
-    if (!userData) {
-      message.error('Failed to fetch user data. Please log in again.');
-      navigate('/login');
-      return;
-    }
+      const userData = await fetchUserData();
+      if (!userData) {
+        message.error('Failed to fetch user data. Please log in again.');
+        navigate('/login');
+        return;
+      }
 
-  const paymentDataFromStorage = JSON.parse(localStorage.getItem('paymentData') || '{}');
-  const userId = sessionStorage.getItem('userid');
-
-     const paymentResponse = await addListPayment(paymentDataFromStorage);
-        console.log('Payment response:', paymentResponse);
-        if (paymentResponse.data.code === 200) {
-          message.success('Payment processed successfully!');
-          const paymentCode = paymentResponse.data.data;
+      //const paymentDataFromStorage = JSON.parse(localStorage.getItem('paymentData') || '{}');
+      const userId = sessionStorage.getItem('userid');
+      const paymentCode = localStorage.getItem('paymentCode');
+      localStorage.removeItem('paymentCode'); // Xóa paymentCode sau khi sử dụng
+      
+  // const paymentResponse = await addListPayment(paymentDataFromStorage);
+  //       console.log('Payment response:', paymentResponse);
+  //       if (paymentResponse.data.code === 200) {
+          // message.success('Payment processed successfully!');
+          // const paymentCode = paymentResponse.data.data;
           
           if (paymentCode && userId) {
               // Gọi API để lấy thông tin thanh toán
@@ -78,14 +80,15 @@ export default function Checkout() {
             message.error('Failed to fetch payment details.');
           }
         })
-        .catch((error) => {
-          console.error('Error fetching payment details:', error);
-          message.error('An error occurred while fetching payment details.');
-        });
-    }
-        }else if(paymentResponse.data.code === 204) {
-          message.error(`${paymentResponse.data.message}`);
+          .catch((error) => {
+            console.error('Error fetching payment details:', error);
+            message.error('An error occurred while fetching payment details.');
+          });
         }
+       
+        // }else if(paymentResponse.data.code === 204) {
+        //   message.error(`${paymentResponse.data.message}`);
+        // }
 
       } catch (error) {
         console.error('Error processing payment:', error);

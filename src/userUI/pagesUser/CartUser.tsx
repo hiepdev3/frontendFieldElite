@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Modal } from 'antd';
 import { changeListCartStatus,checkAvailability,removeCart,addListPayment,createPaymentVNpay ,ValidatePayments} from '../apiUser/PublicServices';
 import { message } from 'antd';
-import Cookies from 'js-cookie';
+
 
 export default function CartUser() {
   const fontFamily = useGoogleFont('Inter');
@@ -86,12 +86,17 @@ export default function CartUser() {
         // Tính toán timeEnd dựa trên bookingDate và hours
         const [hour, minute] = item.timeSlot.split(':').map(Number); // Chuyển timeSlot thành giờ và phút
         const formattedMinute = minute.toString().padStart(2, '0');
-        const endHour = (hour + item.hours).toString().padStart(2, '0');
+        let endHour = hour + item.hours;
 
-        // Tính toán timeEnd dựa trên bookingDate và hours
-        const timeEnd = `${item.date}T${endHour}:${formattedMinute}:00.000Z`;
+        const endDate = new Date(item.date); // Chuyển date thành đối tượng Date
 
-
+        if (endHour > 23) {
+          endHour = endHour % 24; // Lấy giờ trong ngày mới
+          endDate.setDate(endDate.getDate() + 1); // Tăng ngày lên 1
+        }
+        const formattedDate = endDate.toISOString().split('T')[0]; // Lấy phần ngày (yyyy-MM-dd)
+        const timeEnd = `${formattedDate}T${endHour.toString().padStart(2, '0')}:${formattedMinute}:00.000Z`;
+                
         return {
           userId: parseInt(userId, 10),
           voucherCode: "GLOBAL0", // Mã giảm giá (có thể thay đổi tùy theo logic của bạn)
@@ -103,42 +108,53 @@ export default function CartUser() {
           status: 1, // Trạng thái thanh toán (1: đã thanh toán)
           bookingDate, // Kết hợp ngày và thời gian
           timeEnd, // Thời gian kết thúc
-          paymentCode: "",
+          paymentCode: "1",
           totalFinalAmount: cartData.reduce((total, item) => {
               return total + item.pricePerHour * item.hours;
             }, 0) * 1.05,
         };
       });
 
-        const paymentResponse = await ValidatePayments(paymentData);
-        console.log('Payment response:', paymentResponse);
-        if (paymentResponse.data.code === 200) {
-          localStorage.setItem('paymentData', JSON.stringify(paymentData));
-          const accessToken = sessionStorage.getItem('accessToken');
-          if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
-          }
+      // Gọi API để thêm thông tin thanh toán với status là 5 
+      const payments = await addListPayment(paymentData);
 
-          // Gọi API để thêm thông tin thanh toán
-          const payloadTest = {
-            orderType: 'other', 
-            amount: paymentData[0].totalFinalAmount, 
-            orderDescription: 'Payment for order', 
-            name: 'John Doe', 
-          };
-            const response = await createPaymentVNpay(payloadTest);
+    
+      if(payments.data.code === 200) {
+        message.success('Vui lòng chờ vài phút chủ sân xác nhận!');
+        localStorage.setItem('paymentData', JSON.stringify(paymentData));
+        navigate('/account-user');
+      }
+
+
+        // const paymentResponse = await ValidatePayments(paymentData);
+        // console.log('Payment response:', paymentResponse);
+        // if (paymentResponse.data.code === 200) {
+        //   localStorage.setItem('paymentData', JSON.stringify(paymentData));
+        //   const accessToken = sessionStorage.getItem('accessToken');
+        //   if (accessToken) {
+        //     localStorage.setItem('accessToken', accessToken);
+        //   }
+
+        //   // Gọi API để thêm thông tin thanh toán
+        //   const payloadTest = {
+        //     orderType: 'other', 
+        //     amount: paymentData[0].totalFinalAmount, 
+        //     orderDescription: 'Payment for order', 
+        //     name: 'John Doe', 
+        //   };
+        //     const response = await createPaymentVNpay(payloadTest);
             
-            if (response && response.data && response.data.url) {
-                // Chuyển người dùng đến URL thanh toán
-                window.location.href = response.data.url;
-            } else {
-                message.error('Failed to retrieve payment URL. Please try again.');
-            }
+        //     if (response && response.data && response.data.url) {
+        //         // Chuyển người dùng đến URL thanh toán
+        //         window.location.href = response.data.url;
+        //     } else {
+        //         message.error('Failed to retrieve payment URL. Please try again.');
+        //     }
 
             
-        }else if(paymentResponse.data.code === 204) {
-          message.error(`${paymentResponse.data.message}`);
-        }
+        // }else if(paymentResponse.data.code === 204) {
+        //   message.error(`${paymentResponse.data.message}`);
+        // }
 
       
       }

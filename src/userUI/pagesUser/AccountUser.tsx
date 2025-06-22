@@ -6,9 +6,10 @@ import '../fonts/indexUser.css';
 import React from "react"
 import {useAuth} from '../../context/AuthContext.tsx';
 import {useQueryClient} from 'react-query';
-import { getAccountDetail, changeProfile , changePassword,changeBookingStatus } from '../apiUser/PublicServices.ts';
+import { getAccountDetail,createPaymentVNpay, changeProfile , changePassword,changeBookingStatus } from '../apiUser/PublicServices.ts';
 import { useEffect, useState } from 'react';
 import { message } from 'antd';
+import * as signalR from '@microsoft/signalr';
 
 
 export default function AccountUser() {
@@ -24,6 +25,8 @@ export default function AccountUser() {
   const [selectedStatus, setSelectedStatus] = useState('all'); // Mặc định là 'all'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+
   const [user, setUser] = useState({
       id: '12345',
       name: 'John Doe',
@@ -32,8 +35,49 @@ export default function AccountUser() {
       avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
       memberSince: 'January 2022',
       preferredLocation: 'Downtown',
-    });
+    }); 
+    
+    
+     useEffect(() => {
+    const userId = sessionStorage.getItem('userid'); // Lấy userId từ sessionStorage
+ 
+    // Tạo kết nối SignalR
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('https://backend-sohu-production.up.railway.app/paymentHub') // Đúng URL của SignalR hub
+      .withAutomaticReconnect()
+      .build();
+
+    // Bắt đầu kết nối SignalR
+    connection.start()
+      .then(() => {
+        console.log('Connected to SignalR hub');
+
+        // Lắng nghe sự kiện từ server
+        connection.on('ReceiveConfirmation', (data) => {
+          const { paymentCode, userId: receivedUserId } = data;
+
+          if (receivedUserId === parseInt(userId, 10)) {
+            console.log('Nhận thông báo thanh toán cho user của mình:', paymentCode);
+            setShowCheckout(true); // Hiển thị nút Check Out khi nhận được thông báo
+          } else {
+            console.log('SignalR gửi cho user khác');
+          }
+        });
+      })
+      .catch((err) => console.error('SignalR connection error:', err));
+
+    // Cleanup khi component unmount
+    return () => {
+      connection.stop()
+        .then(() => console.log('SignalR connection stopped'))
+        .catch((err) => console.error('Error stopping SignalR connection:', err));
+    };
+    }, [setShowCheckout]);
+
+
+
     useEffect(() => {
+    
     const fetchUserData = async () => {
       try {
           const accessToken = sessionStorage.getItem('accessToken');
@@ -76,10 +120,16 @@ export default function AccountUser() {
             status: booking.status,
             image: booking.image,
             paymentCode: booking.paymentCode,
+            totalFinalAmount: booking.totalFinalAmount || 0, // Nếu không có totalFinalAmount, gán giá trị mặc định là 0
           }))
             : []; // Nếu không có bookings, gán mảng rỗng
 
           setBookings(bookingData); 
+          const hasPendingOrProcessing = bookingData.some(
+            (booking) => booking.status == "wait for confirmation" || booking.status == "wait for payment"
+          );
+
+          setShowCheckout(hasPendingOrProcessing); // Hiển thị nút Check Out nếu có booking đang chờ hoặc đang xử lý  
         } else {
           console.error('Failed to fetch user data:', userResponse.data.message);
           navigate('/login'); // Chuyển hướng về trang login nếu không lấy được dữ liệu
@@ -93,7 +143,35 @@ export default function AccountUser() {
     fetchUserData();
   }, [navigate]);
 
+const handlePayment = async (booking) => {
+  try {
+        const payloadTest = {
+            orderType: 'other', 
+            amount: booking.totalFinalAmount, 
+            orderDescription: booking.paymentCode, 
+            name: 'John Doe',
+          };
+          console.log('Payload for payment:', payloadTest);
+            const response = await createPaymentVNpay(payloadTest);
 
+            localStorage.setItem('paymentCode', booking.paymentCode);
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (accessToken) {
+              localStorage.setItem('accessToken', accessToken);
+            }
+          
+            if (response && response.data && response.data.url) {
+                // Chuyển người dùng đến URL thanh toán
+                window.location.href = response.data.url;
+            } else {
+                message.error('Failed to retrieve payment URL. Please try again.');
+            }
+
+  } catch (error) {
+    console.error('Error during payment:', error);
+    message.error('Đã xảy ra lỗi khi thanh toán.');
+  }
+};
   const handleChangeStatus = async (booking, statusAfter) => {
       try {
           const response = await changeBookingStatus({
@@ -309,6 +387,100 @@ export default function AccountUser() {
               </div>
             )}
           </div>
+
+        {showCheckout && (
+      <div id="payments" className="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800">Các khoản thanh toán</h2>
+        </div>
+
+        {/* Danh sách khoản thanh toán */}
+        <div className="divide-y divide-gray-200">
+          {paginatedBookings.filter((booking) => booking.status =="wait for confirmation" || booking.status == "wait for payment")
+            .map((booking) => (
+              <div key={booking.id} className="p-6">
+                <div className="flex flex-wrap -mx-4">
+                  {/* Booking Details */}
+                  <div className="w-full sm:w-9/12 px-4 mb-4 sm:mb-0">
+                    <div className="flex items-center mb-2">
+                      <h3 className="text-lg font-semibold text-gray-800 mr-3">{booking.fieldName}</h3>
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          booking.status === 5
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}
+                      >
+                        {booking.status === "wait for confirmation" ? 'Chờ chủ sân duyệt' : 'Sẵn sàng thanh toán'}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mr-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      {booking.date}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mr-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {booking.timeSlot} ({booking.hours} hours)
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="w-full sm:w-3/12 px-4 flex flex-col items-end justify-between">
+                    <div className="text-green-600 font-bold text-lg mb-2">
+                      {booking.totalPrice} VNĐ
+                    </div>
+                    <div className="flex space-x-2">
+                      {booking.status === "wait for confirmation" && (
+                        <span className="px-3 py-1 bg-yellow-600 text-white text-sm font-medium rounded-full">
+                          Chờ chủ sân duyệt
+                        </span>
+                      )}
+                      {booking.status === "wait for payment" && (
+                        <button
+                          className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-colors cursor-pointer"
+                          onClick={() => handlePayment(booking)}
+                        >
+                          Thanh toán
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    )}
+
+
+
+
               {/* Booking History */}
               <div id="bookings" className="bg-white rounded-2xl shadow-md overflow-hidden mb-8">
                 <div className="p-6 border-b border-gray-200">

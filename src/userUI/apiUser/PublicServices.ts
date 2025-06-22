@@ -161,7 +161,7 @@ export const ValidatePayments = (payload: {
   status: number;
   bookingDate: string;
   timeEnd: string;
-  paymentCode: string;
+  paymentCode: string; 
   totalFinalAmount: number;
 }[]) => {
   return ApiClient.post('/api/Payment/validatePayments', payload);
@@ -224,4 +224,8 @@ export const createPaymentVNpay = async (payload: {
 }) => {
   return ApiClient.post('/api/Payment/vnpay/create', payload, {
   });
+};
+
+export const getTotalFinalAmount = async (paymentCode: string) => {
+  return ApiClient.get(`/api/Payment/totalfinalamount?paymentCode=${paymentCode}`);
 };
