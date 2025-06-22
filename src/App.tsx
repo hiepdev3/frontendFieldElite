@@ -51,7 +51,6 @@ import { ConfigProvider } from 'antd';
 import { AuthContextProvider } from './context/AuthContext.tsx';
 
 import ReactGA from 'react-ga4';
-import TrackPageView from './TrackPageView.tsx';
 
 // Measurement ID từ GA
 ReactGA.initialize('G-VPCVQ7Z17H'); // <--- Thay bằng mã thật nếu cần
@@ -68,7 +67,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -81,13 +79,11 @@ function App() {
         }}
       >
         <AuthContextProvider>
-          {/* Theo dõi pageview cho Google Analytics */}
-          <TrackPageView />
-          <RouterProvider router={router} />
+        
+            <RouterProvider router={router}/>
         </AuthContextProvider>
       </ConfigProvider>
     </QueryClientProvider>
   );
 }
-
 export default App;

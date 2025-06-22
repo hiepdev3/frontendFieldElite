@@ -11,6 +11,7 @@ import {AppUser} from '../types/AppUser.ts';
 import {useQuery} from 'react-query';
 import { Suspense, useEffect } from 'react';
 import {Fallback} from '../components/Fallback.tsx';
+import TrackPageView from '../components/TrackPageView.tsx'; // ✅ Import thêm
 
 const {ErrorBoundary} = Alert;
 const {Footer} = Layout;
@@ -92,6 +93,7 @@ export const RootLayout = () => {
               minHeight: `calc(100vh - ${headerHeight}px - ${outletPadding * 2}px - ${footerHeight - 20}px)`,
             }}
           >
+             <TrackPageView />
             <AutoBreadcrumbs/>
             <Suspense fallback={<Fallback/>}>
               <ErrorBoundary>
@@ -100,7 +102,7 @@ export const RootLayout = () => {
             </Suspense>
           </Content>
           <Footer style={{textAlign: 'center'}}>
-            Advanced Database Management System, Project Created by Group 6, 2024
+           Management System, Project Created by Group 6, 2025
           </Footer>
         </Layout>
       </Layout>
