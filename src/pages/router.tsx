@@ -29,6 +29,7 @@ import RegisterForm from './registerForm.tsx';
 import ManagerAccount from '../components/ManageAccount.tsx';
 import Checkout from '../userUI/pagesUser/Checkout.tsx';
 import AccountDisabledPage from './AccountDisabledPage.tsx';
+import ThankYou from './ThankYou.tsx';
 const Categories = lazy(() => import('./Categories.tsx'));
 const Dashboard = lazy(() => import('./Dashboard.tsx'));
 const Vendors = lazy(() => import('./Vendors.tsx'));
@@ -196,6 +197,10 @@ export const router = createBrowserRouter([
   {
     path: '/registration',
     element: <RegisterForm />,
+  },
+  {
+    path: '/thank-you',
+    element: <ThankYou />,
   },
   {
     path:'/cart-user',
