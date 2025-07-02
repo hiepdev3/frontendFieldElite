@@ -1,6 +1,6 @@
 'use client';
 import { useGoogleFont } from '../fonts/fonts';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+
 import React, { useEffect, useState } from "react";
 import { Button  } from "antd";
 import { useNavigate } from 'react-router-dom';
@@ -50,10 +50,7 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
           <div className="flex items-center">
             <a href="/user-home" className="flex-shrink-0 flex items-center">
               <div className="h-10 w-auto text-green-600 font-bold text-2xl flex items-center" style={{ fontFamily: playfairFont }}>
-                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polygon points="12 6 8 12 12 18 16 12 12 6" />
-                </svg> */}
+             
                  
                 <img src="../z6685029163397_73ce9ea0bbae8003020504cb48876513.jpg"
                     alt="Logo"
@@ -67,12 +64,17 @@ export default function NavbarUser({ cartItemCount = 0 }: { cartItemCount?: numb
                 Trang Chủ
               </a>
               <a href="/fields-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
-               Sân Bóng
+               Sân 
 
               </a>
               <a href="/promotions-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
                Khuyến Mãi
               </a>
+              {/* {currentUser && (
+                <a href="/Match-Manage" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
+                  Tìm Đối
+                </a>
+              )} */}
               {/* <a href="/account-user" className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 cursor-pointer transition-colors duration-200">
                 Account
               </a> */}

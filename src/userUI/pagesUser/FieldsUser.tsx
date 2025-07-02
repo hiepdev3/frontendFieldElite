@@ -241,8 +241,8 @@ export default function FieldsUser() {
   
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: interFont }}>
-      <Components.NavbarUser />
       
+       <Components.NavbarUser cartItemCount={3} />
       {/* Luxurious Hero Section */}
       <div className="relative bg-gradient-to-r from-green-900 via-green-800 to-green-900 pt-32 pb-0 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -252,7 +252,7 @@ export default function FieldsUser() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: playfairFont }}>
-              Khám Phá Sân Bóng Đá Cao Cấp
+              Khám Phá Hệ Thống Đặt Sân Cao Cấp, Chuyên Nghiệp
             </h1>
             <p className="text-green-100 text-lg mb-8">
               Đặt sân hoàn hảo cho trận đấu của bạn với danh sách địa điểm chất lượng hàng đầu do chúng tôi tuyển chọn. </p>
@@ -667,13 +667,13 @@ export default function FieldsUser() {
       <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 py-16 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-6" style={{ fontFamily: playfairFont }}>
-            Upgrade to Premium Membership
+            Nâng Cấp Trải Nghiệm Của Bạn Với Thành Viên Cao Cấp
           </h2>
           <p className="text-green-100 text-lg max-w-3xl mx-auto mb-8">
-            Get exclusive access to premium fields, priority booking, and special discounts with our Premium Membership.
-          </p>
+            Trở thành thành viên cao cấp để tận hưởng những lợi ích đặc biệt, bao gồm ưu đãi giá cả, quyền truy cập vào các sân cao cấp và dịch vụ khách hàng ưu tiên.  
+            </p>
           <Components.ButtonUser variant="secondary" size="lg">
-            Learn More
+            Tìm Hiểu Thêm
           </Components.ButtonUser>
         </div>
       </div>
