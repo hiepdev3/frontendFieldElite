@@ -26,6 +26,10 @@ export default function AccountUser() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showAcceptPopup, setShowAcceptPopup] = useState<{ open: boolean, booking: any | null }>({ open: false, booking: null });
+  const [acceptChecked, setAcceptChecked] = useState(false);
+
+
 
   const [user, setUser] = useState({
       id: '12345',
@@ -629,6 +633,16 @@ const handlePayment = async (booking) => {
                             )}
                             {booking.status === 'upcoming' && (
                               <>
+                               <button
+                                  className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors cursor-pointer ml-2"
+                                  onClick={() => {
+                                    setShowAcceptPopup({ open: true, booking });
+                                    setAcceptChecked(false);
+                                  }}
+                                 
+                                >
+                                  Accept opponent's request
+                                </button>
                                 <button className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full hover:bg-red-700 transition-colors cursor-pointer"
                                   onClick={() => handleChangeStatus(booking, 'cancelled')}
                                 >
@@ -912,6 +926,49 @@ const handlePayment = async (booking) => {
           </button>
         </div>
       </form>
+    </div>
+      </div>
+    )}
+
+
+    
+
+{showAcceptPopup.open && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h2 className="text-lg font-bold mb-3">Xác nhận chính sách</h2>
+      <p className="mb-4 text-gray-700">
+        Khi chấp nhận cho phép đối thủ tìm kiếm trận đấu, bạn <span className="font-semibold text-red-600">không thể hủy thanh toán và hoàn tiền</span>.
+      </p>
+      <label className="flex items-center mb-4">
+        <input
+          type="checkbox"
+          checked={acceptChecked}
+          onChange={e => setAcceptChecked(e.target.checked)}
+          className="mr-2"
+        />
+        Tôi đồng ý với điều kiện trên
+      </label>
+      <div className="flex justify-end space-x-2">
+        <button
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+          onClick={() => setShowAcceptPopup({ open: false, booking: null })}
+        >
+          Cancel
+        </button>
+        <button
+          className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${!acceptChecked ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={!acceptChecked}
+          onClick={() => {
+            if (showAcceptPopup.booking) {
+              handleChangeStatus(showAcceptPopup.booking, 'Find opponent');
+              setShowAcceptPopup({ open: false, booking: null });
+            }
+          }}
+        >
+          Confirm
+        </button>
+      </div>
     </div>
   </div>
 )}

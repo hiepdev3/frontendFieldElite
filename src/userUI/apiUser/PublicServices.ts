@@ -1,5 +1,5 @@
 import {ApiClient} from '../../api/apiClient.ts';
-import React, { useState } from "react";
+
 
 
 export const getlistFieldForUser = () => {
@@ -211,7 +211,6 @@ export const changeBookingStatus = (payload: {
   userId: number;
 }) => {
   return ApiClient.post('/api/Customer/changeStatusPayment', payload, {
-    
   });
 };
 
@@ -228,4 +227,49 @@ export const createPaymentVNpay = async (payload: {
 
 export const getTotalFinalAmount = async (paymentCode: string) => {
   return ApiClient.get(`/api/Payment/totalfinalamount?paymentCode=${paymentCode}`);
+};
+
+
+export const getMatchAvailable = (userId: number) => {
+  return ApiClient.get(`/api/Match/getMatchAvailable?userId=${userId}`);
+};
+
+
+
+export const addMatchRequest = (userId: number, payload: {
+  id: number;
+  teamName: string;
+  location: string;
+  fieldId: number;
+  date: string;
+  isMine: boolean;
+  paymentCode: string;
+}) => {
+  return ApiClient.post(`/api/Match/addMatchRequest?userId=${userId}`, payload);
+};
+
+
+export const viewRequestMatch = (userId: number) => {
+  return ApiClient.get(`/api/Match/viewRequestMatch?userId=${userId}`);
+};
+
+export const changeMatchRequestStatus = (payload: {
+  id: number;
+  senderID: number;
+  receiverID: number;
+  status: string;
+  requestedAt: string;
+  scheduledMatchID: number;
+  paymentCode: string;
+  isMine: boolean;
+  urlImage: string;
+  fieldName: string;
+  userName: string;
+  newStatus: string;
+}) => {
+  return ApiClient.post('/api/Match/changeMatchRequestStatus', payload);
+};
+
+export const getAllOpponentMatches = (userId: number) => {
+  return ApiClient.get(`/api/Match/getAllOpponentMatches?userId=${userId}`);
 };

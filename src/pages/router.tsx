@@ -30,6 +30,8 @@ import ManagerAccount from '../components/ManageAccount.tsx';
 import Checkout from '../userUI/pagesUser/Checkout.tsx';
 import AccountDisabledPage from './AccountDisabledPage.tsx';
 import ThankYou from './ThankYou.jsx';
+import MatchManage from '../userUI/pagesUser/MatchManage.tsx';
+
 const Categories = lazy(() => import('./Categories.tsx'));
 const Dashboard = lazy(() => import('./Dashboard.tsx'));
 const Vendors = lazy(() => import('./Vendors.tsx'));
@@ -205,6 +207,10 @@ export const router = createBrowserRouter([
   {
     path:'/cart-user',
     element: <CartUser />,
+  },
+  {
+    path:'/Match-Manage',
+    element: <MatchManage />,
   }
  
    
