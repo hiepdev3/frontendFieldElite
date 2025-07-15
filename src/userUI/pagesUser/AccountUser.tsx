@@ -961,7 +961,7 @@ const handlePayment = async (booking) => {
           disabled={!acceptChecked}
           onClick={() => {
             if (showAcceptPopup.booking) {
-              handleChangeStatus(showAcceptPopup.booking, 'Find opponent');
+              handleChangeStatus(showAcceptPopup.booking, 'accepted opponent');
               setShowAcceptPopup({ open: false, booking: null });
             }
           }}
